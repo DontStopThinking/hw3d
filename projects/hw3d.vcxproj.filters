@@ -3,4 +3,7 @@
   <ItemGroup>
     <ClCompile Include="..\code\main.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\code\cleanwindows.h" />
+  </ItemGroup>
 </Project>

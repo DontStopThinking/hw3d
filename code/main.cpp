@@ -1,4 +1,7 @@
-#include <Windows.h>
+#include <string>
+#include <format>
+
+#include "cleanwindows.h"
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -8,20 +11,12 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
     {
         PostQuitMessage(0);
     } break;
-
-    case WM_KEYDOWN:
-    {
-        if (wParam == 'C')
-        {
-            SetWindowText(hWnd, L"New Window Title");
-        }
-    } break;
     }
 
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, PSTR /*lpCmdLine*/, int /*nCmdShow*/)
+int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR /*lpCmdLine*/, int /*nCmdShow*/)
 {
     const LPCWSTR className = L"hw3d";
 
@@ -31,7 +26,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, PSTR /*lp
         .cbSize = sizeof(wc),
         .style = CS_OWNDC,
         .lpfnWndProc = WndProc,
-        .hInstance = hInstance,
+        .hInstance = GetModuleHandle(nullptr),
         .lpszClassName = className
     };
 
@@ -39,19 +34,33 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, PSTR /*lp
 
     const LPCWSTR windowTitle = L"HW3D Window";
 
+    constexpr int windowWidth = 800;
+    constexpr int windowHeight = 300;
+
+    const DWORD windowStyle = WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+
+    RECT wr
+    {
+        .left = 100,
+        .top = 100,
+        .right = wr.left + windowWidth,
+        .bottom = wr.top + windowHeight
+    };
+
+    AdjustWindowRect(&wr, windowStyle, FALSE);
+
     // Create window instance
-    HWND hWnd = CreateWindowEx(
-        0,
+    HWND hWnd = CreateWindow(
         className,
         windowTitle, // window title
-        WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, // style
-        200, // x
-        200, // y
-        640, // width
-        480, // height
+        windowStyle, // style
+        CW_USEDEFAULT, // x
+        CW_USEDEFAULT, // y
+        wr.right - wr.left, // width
+        wr.bottom - wr.top, // height
         nullptr, // parent
         nullptr, // menu
-        hInstance, // instance
+        GetModuleHandle(nullptr), // instance
         nullptr // lpParam
     );
 
@@ -72,6 +81,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, PSTR /*lp
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+
+    DestroyWindow(hWnd);
+    UnregisterClass(className, GetModuleHandle(nullptr));
 
     if (gResult == -1)
     {
