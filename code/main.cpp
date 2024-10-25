@@ -1,6 +1,3 @@
-#include <string>
-#include <format>
-
 #include "cleanwindows.h"
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -34,8 +31,8 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
 
     const LPCWSTR windowTitle = L"HW3D Window";
 
-    constexpr int windowWidth = 800;
-    constexpr int windowHeight = 300;
+    constexpr int windowWidth = 700;
+    constexpr int windowHeight = 400;
 
     const DWORD windowStyle = WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
 
