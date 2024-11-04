@@ -92,7 +92,8 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         .style = CS_OWNDC,
         .lpfnWndProc = WindowCallback,
         .hInstance = GetModuleHandle(nullptr),
-        .lpszClassName = className
+        .lpszClassName = className,
+        // .hIcon
     };
 
     if (!RegisterClassEx(&wc))
