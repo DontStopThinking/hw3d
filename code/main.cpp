@@ -31,7 +31,45 @@ static LRESULT CALLBACK WindowCallback(HWND windowHandle, UINT msg, WPARAM wPara
 
     case WM_ACTIVATEAPP:
     {
-        OutputDebugString(L"WM_ACTIVATEAPP");
+        OutputDebugStringA("WM_ACTIVATEAPP");
+    } break;
+
+    case WM_SYSKEYDOWN:
+    case WM_SYSKEYUP:
+    case WM_KEYDOWN:
+    case WM_KEYUP:
+    {
+        uint32 vkCode = wParam;
+
+        bool wasDown = ((lParam & (1ll << 30)) != 0); //! Was the same key down before?
+        bool isDown = ((lParam & (1ll << 31)) == 0);  //! Is the same key still down?
+
+        //! Early exit when the key is held down
+        if (wasDown == isDown)
+        {
+            break;
+        }
+
+        if (vkCode == 'W')
+        {
+        }
+        else if (vkCode == VK_SPACE)
+        {
+            OutputDebugStringA("SPACE: ");
+            if (isDown)
+            {
+                OutputDebugStringA("isDown ");
+            }
+            if (wasDown)
+            {
+                OutputDebugStringA("wasDown");
+            }
+            OutputDebugStringA("\n");
+        }
+        else if (vkCode == VK_ESCAPE)
+        {
+            g_Running = false;
+        }
     } break;
 
     default:
