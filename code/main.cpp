@@ -72,6 +72,13 @@ static LRESULT CALLBACK WindowCallback(HWND windowHandle, UINT msg, WPARAM wPara
         }
     } break;
 
+    case WM_PAINT:
+    {
+        PAINTSTRUCT paint = {};
+        HDC deviceContext = BeginPaint(windowHandle, &paint);
+        EndPaint(windowHandle, &paint);
+    } break;
+
     default:
     {
         result = DefWindowProc(windowHandle, msg, wParam, lParam);
@@ -107,7 +114,8 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     constexpr int windowWidth = 700;
     constexpr int windowHeight = 400;
 
-    const DWORD windowStyle = WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU;
+    const DWORD windowStyle = WS_CAPTION | WS_MINIMIZEBOX | CS_HREDRAW | CS_VREDRAW | CS_OWNDC |
+                              WS_OVERLAPPEDWINDOW | WS_VISIBLE;
 
     RECT wr
     {
