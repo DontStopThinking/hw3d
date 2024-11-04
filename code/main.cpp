@@ -1,16 +1,23 @@
 #include "cleanwindows.h"
 
-static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+bool g_Running = false;
+
+static LRESULT CALLBACK WindowCallback(HWND windowHandle, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)
     {
     case WM_CLOSE:
     {
-        PostQuitMessage(0);
+        g_Running = false;
+    } break;
+
+    case WM_DESTROY:
+    {
+        g_Running = false;
     } break;
     }
 
-    return DefWindowProc(hWnd, msg, wParam, lParam);
+    return DefWindowProc(windowHandle, msg, wParam, lParam);
 }
 
 int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR /*lpCmdLine*/, int /*nCmdShow*/)
@@ -22,7 +29,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     {
         .cbSize = sizeof(wc),
         .style = CS_OWNDC,
-        .lpfnWndProc = WndProc,
+        .lpfnWndProc = WindowCallback,
         .hInstance = GetModuleHandle(nullptr),
         .lpszClassName = className
     };
@@ -55,7 +62,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     }
 
     // Create window instance
-    HWND hWnd = CreateWindow(
+    HWND windowHandle = CreateWindow(
         className,
         windowTitle, // window title
         windowStyle, // style
@@ -69,26 +76,37 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         nullptr // lpParam
     );
 
-    if (!hWnd)
+    if (!windowHandle)
     {
         // TODO: Logging
         return -1;
     }
 
-    ShowWindow(hWnd, SW_SHOW);
+    g_Running = true;
 
-    // Message pump
-    MSG msg;
-    BOOL result;
+    ShowWindow(windowHandle, SW_SHOW);
 
-    // If GetMessage returns negative value, then that means there was an error
-    while ((result = GetMessage(&msg, nullptr, 0, 0)) > 0)
+    while (g_Running)
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        MSG msg = {};
+
+        // PeekMessage() is non-blocking whereas GetMessage() will block.
+        // We use PeekMessage() instead of GetMessage() because we want to keep running if there are no
+        // messages.
+        while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+        {
+            if (msg.message == WM_QUIT)
+            {
+                g_Running = false;
+                break;
+            }
+
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
     }
 
-    if (!DestroyWindow(hWnd))
+    if (!DestroyWindow(windowHandle))
     {
         // TODO: Logging
     }
@@ -98,13 +116,5 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         // TODO: Logging
     }
 
-    if (result == -1)
-    {
-        // TODO: Logging
-        return -1;
-    }
-    else
-    {
-        return (int)msg.wParam;  // This is the value returned from WndProc
-    }
+    return 0;
 }
