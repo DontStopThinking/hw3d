@@ -30,6 +30,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     if (!RegisterClassEx(&wc))
     {
         // TODO: Logging
+        return -1;
     }
 
     const LPCWSTR windowTitle = L"HW3D Window";
@@ -50,6 +51,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     if (!AdjustWindowRect(&wr, windowStyle, FALSE))
     {
         // TODO: Logging
+        return -1;
     }
 
     // Create window instance
