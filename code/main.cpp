@@ -70,10 +70,10 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
 
     // Message pump
     MSG msg;
-    BOOL gResult;
+    BOOL result;
 
     // If GetMessage returns negative value, then that means there was an error
-    while ((gResult = GetMessage(&msg, nullptr, 0, 0)) > 0)
+    while ((result = GetMessage(&msg, nullptr, 0, 0)) > 0)
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -82,7 +82,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     DestroyWindow(hWnd);
     UnregisterClass(className, GetModuleHandle(nullptr));
 
-    if (gResult == -1)
+    if (result == -1)
     {
         return -1;
     }
