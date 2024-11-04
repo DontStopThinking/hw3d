@@ -18,7 +18,7 @@ constinit void* g_BitmapMemory = nullptr;   //! The location where Windows will 
 constinit HBITMAP g_BitmapHandle = nullptr; //! Handle to the bitmap
 constinit HDC g_BitmapDeviceContext = nullptr; //! Device context for the bitmap
 
-//! DIB = "Device Independent Bitmap". We write to a bitmap that Windows then displays using GDI.
+//! DIB = "Device Independent Bitmap". We create a bitmap.
 static void ResizeDIBSection(int width, int height)
 {
     if (g_BitmapHandle)
@@ -47,6 +47,7 @@ static void ResizeDIBSection(int width, int height)
         g_BitmapDeviceContext, &g_BitmapInfo, DIB_RGB_COLORS, &g_BitmapMemory, nullptr, 0);
 }
 
+//! Display the bitmap using GDI.
 static void UpdateMyWindow(HDC deviceContext, int x, int y, int width, int height)
 {
     StretchDIBits(
