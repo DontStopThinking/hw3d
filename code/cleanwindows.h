@@ -2,7 +2,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-// sbalse: Copied from: https://github.com/planetchili/hw3d/blob/master/hw3d/ChiliWin.h
+//! Copied from: https://github.com/planetchili/hw3d/blob/master/hw3d/ChiliWin.h
 
 #define NOGDICAPMASKS
 #define NOSYSMETRICS

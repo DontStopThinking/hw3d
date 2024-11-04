@@ -1,9 +1,22 @@
+#include <cstdint>
+
 #include "cleanwindows.h"
 
 bool g_Running = false;
 
+using int8 = int8_t;
+using uint8 = uint8_t;
+using int16 = int16_t;
+using uint16 = uint16_t;
+using int32 = int32_t;
+using uint32 = uint32_t;
+using int64 = int64_t;
+using uint64 = uint64_t;
+
 static LRESULT CALLBACK WindowCallback(HWND windowHandle, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    LRESULT result = 0;
+
     switch (msg)
     {
     case WM_CLOSE:
@@ -15,9 +28,19 @@ static LRESULT CALLBACK WindowCallback(HWND windowHandle, UINT msg, WPARAM wPara
     {
         g_Running = false;
     } break;
+
+    case WM_ACTIVATEAPP:
+    {
+        OutputDebugString(L"WM_ACTIVATEAPP");
+    } break;
+
+    default:
+    {
+        result = DefWindowProc(windowHandle, msg, wParam, lParam);
+    }
     }
 
-    return DefWindowProc(windowHandle, msg, wParam, lParam);
+    return result;
 }
 
 int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR /*lpCmdLine*/, int /*nCmdShow*/)
@@ -61,7 +84,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         return -1;
     }
 
-    // Create window instance
+    //! Create window instance
     HWND windowHandle = CreateWindow(
         className,
         windowTitle, // window title
@@ -90,9 +113,9 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     {
         MSG msg = {};
 
-        // PeekMessage() is non-blocking whereas GetMessage() will block.
-        // We use PeekMessage() instead of GetMessage() because we want to keep running if there are no
-        // messages.
+        //! PeekMessage() is non-blocking whereas GetMessage() will block.
+        //! We use PeekMessage() instead of GetMessage() because we want to keep running if there are no
+        //! messages.
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT)
