@@ -27,7 +27,10 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         .lpszClassName = className
     };
 
-    RegisterClassEx(&wc);
+    if (!RegisterClassEx(&wc))
+    {
+        // TODO: Logging
+    }
 
     const LPCWSTR windowTitle = L"HW3D Window";
 
@@ -44,7 +47,10 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         .bottom = wr.top + windowHeight
     };
 
-    AdjustWindowRect(&wr, windowStyle, FALSE);
+    if (!AdjustWindowRect(&wr, windowStyle, FALSE))
+    {
+        // TODO: Logging
+    }
 
     // Create window instance
     HWND hWnd = CreateWindow(
@@ -63,6 +69,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
 
     if (!hWnd)
     {
+        // TODO: Logging
         return -1;
     }
 
@@ -79,11 +86,19 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         DispatchMessage(&msg);
     }
 
-    DestroyWindow(hWnd);
-    UnregisterClass(className, GetModuleHandle(nullptr));
+    if (!DestroyWindow(hWnd))
+    {
+        // TODO: Logging
+    }
+
+    if (!UnregisterClass(className, GetModuleHandle(nullptr)))
+    {
+        // TODO: Logging
+    }
 
     if (result == -1)
     {
+        // TODO: Logging
         return -1;
     }
     else
