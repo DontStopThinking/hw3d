@@ -1,4 +1,5 @@
-#include <cstdint>
+#include <stdint.h>
+#include <stdlib.h>
 
 #include "cleanwindows.h"
 
@@ -173,7 +174,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     if (!RegisterClassEx(&wc))
     {
         // TODO: Logging
-        return -1;
+        return EXIT_FAILURE;
     }
 
     const LPCWSTR windowTitle = L"HW3D Window";
@@ -195,7 +196,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     if (!AdjustWindowRect(&wr, windowStyle, FALSE))
     {
         // TODO: Logging
-        return -1;
+        return EXIT_FAILURE;
     }
 
     //! Create window instance
@@ -216,7 +217,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     if (!windowHandle)
     {
         // TODO: Logging
-        return -1;
+        return EXIT_FAILURE;
     }
 
     g_Running = true;
@@ -253,5 +254,5 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         // TODO: Logging
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
