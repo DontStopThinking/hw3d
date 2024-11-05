@@ -16,27 +16,26 @@ constinit bool g_Running = false;
 
 constinit BITMAPINFO g_BitmapInfo = {}; //! The Bitmap that we will draw onto the screen
 constinit void* g_BitmapMemory = nullptr;   //! The location where Windows will store the bitmap memory
-constinit HBITMAP g_BitmapHandle = nullptr; //! Handle to the bitmap
-constinit HDC g_BitmapDeviceContext = nullptr; //! Device context for the bitmap
+int g_BitmapWidth = 0;
+int g_BitmapHeight = 0;
 
 //! DIB = "Device Independent Bitmap". We create a bitmap.
 static void ResizeDIBSection(int width, int height)
 {
-    if (g_BitmapHandle)
+    if (g_BitmapMemory)
     {
-        DeleteObject(g_BitmapHandle);
+        //! If memory was allocated before then free it first before resizing the bitmap.
+        VirtualFree(g_BitmapMemory, 0, MEM_RELEASE);
     }
 
-    if (!g_BitmapDeviceContext)
-    {
-        g_BitmapDeviceContext = CreateCompatibleDC(nullptr);
-    }
+    g_BitmapWidth = width;
+    g_BitmapHeight = height;
 
     BITMAPINFOHEADER bitmapInfoHeader =
     {
         .biSize = sizeof(BITMAPINFOHEADER),
-        .biWidth = width,   // width of the bitmap in pixels
-        .biHeight = height, // height of the bitmap in pixels
+        .biWidth = g_BitmapWidth,   // width of the bitmap in pixels
+        .biHeight = -g_BitmapHeight, // height of the bitmap in pixels
         .biPlanes = 1,  // always 1
         .biBitCount = 32,   // no. of bits per pixel. 32 bits = RGBA
         .biCompression = BI_RGB, // we don't want any compression. BI_RGB means no compression.
@@ -44,17 +43,48 @@ static void ResizeDIBSection(int width, int height)
 
     g_BitmapInfo = { .bmiHeader = bitmapInfoHeader };
 
-    g_BitmapHandle = CreateDIBSection(
-        g_BitmapDeviceContext, &g_BitmapInfo, DIB_RGB_COLORS, &g_BitmapMemory, nullptr, 0);
+    int bytesPerPixel = 4;
+    int bitmapMemorySize = bytesPerPixel * width * height;
+    g_BitmapMemory = VirtualAlloc(nullptr, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
+
+    int pitch = width * bytesPerPixel;
+    uint8* row = (uint8*)g_BitmapMemory;
+
+    for (int y = 0; y < g_BitmapHeight; y++)
+    {
+        uint8* pixel = (uint8*)row;
+
+        for (int x = 0; x < g_BitmapWidth; x++)
+        {
+            *pixel = (uint8)x;
+            ++pixel;
+
+            *pixel = (uint8)y;
+            ++pixel;
+
+            *pixel = 0;
+            ++pixel;
+
+            *pixel = 0;
+            ++pixel;
+        }
+
+        row += pitch;
+    }
 }
 
 //! Display the bitmap using GDI.
-static void UpdateMyWindow(HDC deviceContext, int x, int y, int width, int height)
+static void UpdateMyWindow(HDC deviceContext, RECT* windowRect, int x, int y, int width, int height)
 {
+    int windowWidth = windowRect->right - windowRect->left;
+    int windowHeight = windowRect->bottom - windowRect->top;
+
     StretchDIBits(
         deviceContext,
-        x, y, width, height,
-        x, y, width, height,
+        /*x, y, width, height,
+        x, y, width, height,*/
+        0, 0, g_BitmapWidth, g_BitmapHeight,
+        0, 0, windowWidth, windowHeight,
         g_BitmapMemory, &g_BitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 }
 
@@ -90,7 +120,6 @@ static LRESULT CALLBACK WindowCallback(HWND windowHandle, UINT msg, WPARAM wPara
         const int height = clientRect.bottom - clientRect.top;
 
         ResizeDIBSection(width, height);
-
     } break;
 
     case WM_SYSKEYDOWN:
@@ -142,7 +171,10 @@ static LRESULT CALLBACK WindowCallback(HWND windowHandle, UINT msg, WPARAM wPara
         int width = paint.rcPaint.right - paint.rcPaint.left;
         int height = paint.rcPaint.bottom - paint.rcPaint.top;
 
-        UpdateMyWindow(deviceContext, x, y, width, height);
+        RECT clientRect = {};
+        GetClientRect(windowHandle, &clientRect);
+
+        UpdateMyWindow(deviceContext, &clientRect, x, y, width, height);
 
         EndPaint(windowHandle, &paint);
     } break;
