@@ -14,10 +14,10 @@ using uint64 = uint64_t;
 
 struct OffscreenBuffer
 {
+    //! Pixels are always 32-bits wide, little endian. - BB GG RR XX
     BITMAPINFO info; //! The Bitmap that we will draw onto the screen
     void* memory;   //! The location where Windows will store the bitmap memory
     int pitch;
-    int bytesPerPixel;  //! How many bytes is each pixel?
     int width;    //! width of the bitmap in pixels
     int height;   //! height of the bitmap in pixels
 };
@@ -75,7 +75,7 @@ static void ResizeDIBSection(OffscreenBuffer* buffer, int width, int height)
 
     buffer->width = width;
     buffer->height = height;
-    buffer->bytesPerPixel = 4;
+    int bytesPerPixel = 4;
 
     BITMAPINFOHEADER bitmapInfoHeader =
     {
@@ -89,10 +89,10 @@ static void ResizeDIBSection(OffscreenBuffer* buffer, int width, int height)
 
     buffer->info = { .bmiHeader = bitmapInfoHeader };
 
-    int bitmapMemorySize = buffer->bytesPerPixel * width * height;
+    int bitmapMemorySize = bytesPerPixel * width * height;
     buffer->memory = VirtualAlloc(nullptr, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
 
-    buffer->pitch = width * buffer->bytesPerPixel;
+    buffer->pitch = width * bytesPerPixel;
 
     // TODO: Clear window to black
 }
