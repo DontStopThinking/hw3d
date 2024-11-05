@@ -18,6 +18,37 @@ constinit BITMAPINFO g_BitmapInfo = {}; //! The Bitmap that we will draw onto th
 constinit void* g_BitmapMemory = nullptr;   //! The location where Windows will store the bitmap memory
 int g_BitmapWidth = 0;
 int g_BitmapHeight = 0;
+int g_BytesPerPixel = 4;
+
+static void RenderGradient()
+{
+    int width = g_BitmapWidth;
+
+    int pitch = width * g_BytesPerPixel;
+    uint8* row = (uint8*)g_BitmapMemory;
+
+    for (int y = 0; y < g_BitmapHeight; y++)
+    {
+        uint8* pixel = (uint8*)row;
+
+        for (int x = 0; x < g_BitmapWidth; x++)
+        {
+            *pixel = (uint8)x;
+            ++pixel;
+
+            *pixel = (uint8)y;
+            ++pixel;
+
+            *pixel = 0;
+            ++pixel;
+
+            *pixel = 0;
+            ++pixel;
+        }
+
+        row += pitch;
+    }
+}
 
 //! DIB = "Device Independent Bitmap". We create a bitmap.
 static void ResizeDIBSection(int width, int height)
@@ -43,34 +74,10 @@ static void ResizeDIBSection(int width, int height)
 
     g_BitmapInfo = { .bmiHeader = bitmapInfoHeader };
 
-    int bytesPerPixel = 4;
-    int bitmapMemorySize = bytesPerPixel * width * height;
+    int bitmapMemorySize = g_BytesPerPixel * width * height;
     g_BitmapMemory = VirtualAlloc(nullptr, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
 
-    int pitch = width * bytesPerPixel;
-    uint8* row = (uint8*)g_BitmapMemory;
-
-    for (int y = 0; y < g_BitmapHeight; y++)
-    {
-        uint8* pixel = (uint8*)row;
-
-        for (int x = 0; x < g_BitmapWidth; x++)
-        {
-            *pixel = (uint8)x;
-            ++pixel;
-
-            *pixel = (uint8)y;
-            ++pixel;
-
-            *pixel = 0;
-            ++pixel;
-
-            *pixel = 0;
-            ++pixel;
-        }
-
-        row += pitch;
-    }
+    RenderGradient();
 }
 
 //! Display the bitmap using GDI.
