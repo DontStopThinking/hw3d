@@ -101,10 +101,8 @@ static void DisplayBufferInWindow(
 {
     StretchDIBits(
         deviceContext,
-        /*x, y, width, height,
-        x, y, width, height,*/
-        0, 0, buffer->width, buffer->height,
         0, 0, windowWidth, windowHeight,
+        0, 0, buffer->width, buffer->height,
         buffer->memory, &buffer->info, DIB_RGB_COLORS, SRCCOPY);
 }
 
@@ -131,11 +129,6 @@ static LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wParam, LPA
 
     case WM_SIZE:   //! Window was resized
     {
-        OutputDebugStringA("WM_SIZE\n");
-
-        WindowDimensions dimensions = GetWindowDimensions(window);
-
-        ResizeDIBSection(&g_BackBuffer, dimensions.width, dimensions.height);
     } break;
 
     case WM_SYSKEYDOWN:
@@ -226,8 +219,10 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
 
     const LPCWSTR windowTitle = L"HW3D Window";
 
-    constexpr int windowWidth = 700;
-    constexpr int windowHeight = 400;
+    constexpr int windowWidth = 1280;
+    constexpr int windowHeight = 720;
+
+    ResizeDIBSection(&g_BackBuffer, windowWidth, windowHeight);
 
     const DWORD windowStyle = WS_CAPTION | WS_MINIMIZEBOX | CS_HREDRAW | CS_VREDRAW | CS_OWNDC |
                               WS_OVERLAPPEDWINDOW | WS_VISIBLE;
