@@ -12,7 +12,7 @@ using uint32 = uint32_t;
 using int64 = int64_t;
 using uint64 = uint64_t;
 
-struct Win32OffscreenBuffer
+struct OffscreenBuffer
 {
     BITMAPINFO info; //! The Bitmap that we will draw onto the screen
     void* memory;   //! The location where Windows will store the bitmap memory
@@ -22,10 +22,29 @@ struct Win32OffscreenBuffer
     int height;   //! height of the bitmap in pixels
 };
 
-constinit bool g_Running = false;
-constinit Win32OffscreenBuffer g_BackBuffer = {};
+struct WindowDimensions
+{
+    int width;
+    int height;
+};
 
-static void RenderGradient(Win32OffscreenBuffer* buffer, int xOffset, int yOffset)
+constinit bool g_Running = false;
+constinit OffscreenBuffer g_BackBuffer = {};
+
+static WindowDimensions GetWindowDimensions(HWND window)
+{
+    WindowDimensions result = {};
+
+    RECT clientRect = {};
+    GetClientRect(window, &clientRect);
+
+    result.width = clientRect.right - clientRect.left;
+    result.height = clientRect.bottom - clientRect.top;
+
+    return result;
+}
+
+static void RenderGradient(OffscreenBuffer* buffer, int xOffset, int yOffset)
 {
     uint8* row = (uint8*)buffer->memory;
 
@@ -46,7 +65,7 @@ static void RenderGradient(Win32OffscreenBuffer* buffer, int xOffset, int yOffse
 }
 
 //! DIB = "Device Independent Bitmap". We create a bitmap.
-static void ResizeDIBSection(Win32OffscreenBuffer* buffer, int width, int height)
+static void ResizeDIBSection(OffscreenBuffer* buffer, int width, int height)
 {
     if (buffer->memory)
     {
@@ -78,11 +97,8 @@ static void ResizeDIBSection(Win32OffscreenBuffer* buffer, int width, int height
 
 //! Display the bitmap using GDI.
 static void DisplayBufferInWindow(
-    Win32OffscreenBuffer* buffer, HDC deviceContext, RECT windowRect, int x, int y, int width, int height)
+    OffscreenBuffer* buffer, HDC deviceContext, int windowWidth, int windowHeight, int x, int y, int width, int height)
 {
-    int windowWidth = windowRect.right - windowRect.left;
-    int windowHeight = windowRect.bottom - windowRect.top;
-
     StretchDIBits(
         deviceContext,
         /*x, y, width, height,
@@ -117,13 +133,9 @@ static LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wParam, LPA
     {
         OutputDebugStringA("WM_SIZE\n");
 
-        RECT clientRect = {};
-        GetClientRect(window, &clientRect);
+        WindowDimensions dimensions = GetWindowDimensions(window);
 
-        const int width = clientRect.right - clientRect.left;
-        const int height = clientRect.bottom - clientRect.top;
-
-        ResizeDIBSection(&g_BackBuffer, width, height);
+        ResizeDIBSection(&g_BackBuffer, dimensions.width, dimensions.height);
     } break;
 
     case WM_SYSKEYDOWN:
@@ -175,10 +187,9 @@ static LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wParam, LPA
         int width = paint.rcPaint.right - paint.rcPaint.left;
         int height = paint.rcPaint.bottom - paint.rcPaint.top;
 
-        RECT clientRect = {};
-        GetClientRect(window, &clientRect);
+        WindowDimensions dimensions = GetWindowDimensions(window);
 
-        DisplayBufferInWindow(&g_BackBuffer, deviceContext, clientRect, x, y, width, height);
+        DisplayBufferInWindow(&g_BackBuffer, deviceContext, dimensions.width, dimensions.height, x, y, width, height);
 
         EndPaint(window, &paint);
     } break;
@@ -285,11 +296,17 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         RenderGradient(&g_BackBuffer, xOffset, yOffset);
 
         HDC deviceContext = GetDC(window);
-        RECT clientRect = {};
-        GetClientRect(window, &clientRect);
-        int windowWidth = clientRect.right - clientRect.left;
-        int windowHeight = clientRect.bottom - clientRect.top;
-        DisplayBufferInWindow(&g_BackBuffer, deviceContext, clientRect, 0, 0, windowWidth, windowHeight);
+
+        WindowDimensions dimensions = GetWindowDimensions(window);
+
+        DisplayBufferInWindow(
+            &g_BackBuffer,
+            deviceContext,
+            dimensions.width,
+            dimensions.height,
+            0, 0,
+            windowWidth, windowHeight);
+
         ReleaseDC(window, deviceContext);
 
         ++xOffset;
