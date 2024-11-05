@@ -12,26 +12,28 @@ using uint32 = uint32_t;
 using int64 = int64_t;
 using uint64 = uint64_t;
 
-constinit bool g_Running = false;
-
-constinit BITMAPINFO g_BitmapInfo = {}; //! The Bitmap that we will draw onto the screen
-constinit void* g_BitmapMemory = nullptr;   //! The location where Windows will store the bitmap memory
-int g_BitmapWidth = 0;
-int g_BitmapHeight = 0;
-int g_BytesPerPixel = 4;
-
-static void RenderGradient(int xOffset, int yOffset)
+struct Win32OffscreenBuffer
 {
-    int width = g_BitmapWidth;
+    BITMAPINFO info; //! The Bitmap that we will draw onto the screen
+    void* memory;   //! The location where Windows will store the bitmap memory
+    int pitch;
+    int bytesPerPixel;  //! How many bytes is each pixel?
+    int width;    //! width of the bitmap in pixels
+    int height;   //! height of the bitmap in pixels
+};
 
-    int pitch = width * g_BytesPerPixel;
-    uint8* row = (uint8*)g_BitmapMemory;
+constinit bool g_Running = false;
+constinit Win32OffscreenBuffer g_BackBuffer = {};
 
-    for (int y = 0; y < g_BitmapHeight; y++)
+static void RenderGradient(Win32OffscreenBuffer* buffer, int xOffset, int yOffset)
+{
+    uint8* row = (uint8*)buffer->memory;
+
+    for (int y = 0; y < buffer->height; y++)
     {
         uint32* pixel = (uint32*)row;
 
-        for (int x = 0; x < g_BitmapWidth; x++)
+        for (int x = 0; x < buffer->width; x++)
         {
             uint8 blue = x + xOffset;
             uint8 green = y + yOffset;
@@ -39,51 +41,55 @@ static void RenderGradient(int xOffset, int yOffset)
             *pixel++ = ((green << 8) | blue);
         }
 
-        row += pitch;
+        row += buffer->pitch;
     }
 }
 
 //! DIB = "Device Independent Bitmap". We create a bitmap.
-static void ResizeDIBSection(int width, int height)
+static void ResizeDIBSection(Win32OffscreenBuffer* buffer, int width, int height)
 {
-    if (g_BitmapMemory)
+    if (buffer->memory)
     {
         //! If memory was allocated before then free it first before resizing the bitmap.
-        VirtualFree(g_BitmapMemory, 0, MEM_RELEASE);
+        VirtualFree(buffer->memory, 0, MEM_RELEASE);
     }
 
-    g_BitmapWidth = width;
-    g_BitmapHeight = height;
+    buffer->width = width;
+    buffer->height = height;
+    buffer->bytesPerPixel = 4;
 
     BITMAPINFOHEADER bitmapInfoHeader =
     {
         .biSize = sizeof(BITMAPINFOHEADER),
-        .biWidth = g_BitmapWidth,   // width of the bitmap in pixels
-        .biHeight = -g_BitmapHeight, // height of the bitmap in pixels
+        .biWidth = buffer->width,   // width of the bitmap in pixels
+        .biHeight = -buffer->height, // height of the bitmap in pixels
         .biPlanes = 1,  // always 1
         .biBitCount = 32,   // no. of bits per pixel. 32 bits = RGBA
         .biCompression = BI_RGB, // we don't want any compression. BI_RGB means no compression.
     };
 
-    g_BitmapInfo = { .bmiHeader = bitmapInfoHeader };
+    buffer->info = { .bmiHeader = bitmapInfoHeader };
 
-    int bitmapMemorySize = g_BytesPerPixel * width * height;
-    g_BitmapMemory = VirtualAlloc(nullptr, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
+    int bitmapMemorySize = buffer->bytesPerPixel * width * height;
+    buffer->memory = VirtualAlloc(nullptr, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
+
+    buffer->pitch = width * buffer->bytesPerPixel;
 }
 
 //! Display the bitmap using GDI.
-static void UpdateMyWindow(HDC deviceContext, RECT* windowRect, int x, int y, int width, int height)
+static void DisplayBufferInWindow(
+    Win32OffscreenBuffer* buffer, HDC deviceContext, RECT windowRect, int x, int y, int width, int height)
 {
-    int windowWidth = windowRect->right - windowRect->left;
-    int windowHeight = windowRect->bottom - windowRect->top;
+    int windowWidth = windowRect.right - windowRect.left;
+    int windowHeight = windowRect.bottom - windowRect.top;
 
     StretchDIBits(
         deviceContext,
         /*x, y, width, height,
         x, y, width, height,*/
-        0, 0, g_BitmapWidth, g_BitmapHeight,
+        0, 0, buffer->width, buffer->height,
         0, 0, windowWidth, windowHeight,
-        g_BitmapMemory, &g_BitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+        buffer->memory, &buffer->info, DIB_RGB_COLORS, SRCCOPY);
 }
 
 static LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -117,7 +123,7 @@ static LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wParam, LPA
         const int width = clientRect.right - clientRect.left;
         const int height = clientRect.bottom - clientRect.top;
 
-        ResizeDIBSection(width, height);
+        ResizeDIBSection(&g_BackBuffer, width, height);
     } break;
 
     case WM_SYSKEYDOWN:
@@ -172,7 +178,7 @@ static LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wParam, LPA
         RECT clientRect = {};
         GetClientRect(window, &clientRect);
 
-        UpdateMyWindow(deviceContext, &clientRect, x, y, width, height);
+        DisplayBufferInWindow(&g_BackBuffer, deviceContext, clientRect, x, y, width, height);
 
         EndPaint(window, &paint);
     } break;
@@ -276,14 +282,14 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
             DispatchMessage(&msg);
         }
 
-        RenderGradient(xOffset, yOffset);
+        RenderGradient(&g_BackBuffer, xOffset, yOffset);
 
         HDC deviceContext = GetDC(window);
         RECT clientRect = {};
         GetClientRect(window, &clientRect);
         int windowWidth = clientRect.right - clientRect.left;
         int windowHeight = clientRect.bottom - clientRect.top;
-        UpdateMyWindow(deviceContext, &clientRect, 0, 0, windowWidth, windowHeight);
+        DisplayBufferInWindow(&g_BackBuffer, deviceContext, clientRect, 0, 0, windowWidth, windowHeight);
         ReleaseDC(window, deviceContext);
 
         ++xOffset;
