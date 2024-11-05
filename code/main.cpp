@@ -93,12 +93,16 @@ static void ResizeDIBSection(OffscreenBuffer* buffer, int width, int height)
     buffer->memory = VirtualAlloc(nullptr, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
 
     buffer->pitch = width * buffer->bytesPerPixel;
+
+    // TODO: Clear window to black
 }
 
 //! Display the bitmap using GDI.
 static void DisplayBufferInWindow(
-    OffscreenBuffer* buffer, HDC deviceContext, int windowWidth, int windowHeight, int x, int y, int width, int height)
+    OffscreenBuffer* buffer, HDC deviceContext, int windowWidth, int windowHeight, int x, int y)
 {
+    // TODO: Aspect ratio correction
+
     StretchDIBits(
         deviceContext,
         0, 0, windowWidth, windowHeight,
@@ -177,12 +181,9 @@ static LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wParam, LPA
         int x = paint.rcPaint.left;
         int y = paint.rcPaint.top;
 
-        int width = paint.rcPaint.right - paint.rcPaint.left;
-        int height = paint.rcPaint.bottom - paint.rcPaint.top;
-
         WindowDimensions dimensions = GetWindowDimensions(window);
 
-        DisplayBufferInWindow(&g_BackBuffer, deviceContext, dimensions.width, dimensions.height, x, y, width, height);
+        DisplayBufferInWindow(&g_BackBuffer, deviceContext, dimensions.width, dimensions.height, x, y);
 
         EndPaint(window, &paint);
     } break;
@@ -299,8 +300,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
             deviceContext,
             dimensions.width,
             dimensions.height,
-            0, 0,
-            windowWidth, windowHeight);
+            0, 0);
 
         ReleaseDC(window, deviceContext);
 
