@@ -20,7 +20,7 @@ int g_BitmapWidth = 0;
 int g_BitmapHeight = 0;
 int g_BytesPerPixel = 4;
 
-static void RenderGradient()
+static void RenderGradient(int xOffset, int yOffset)
 {
     int width = g_BitmapWidth;
 
@@ -33,10 +33,10 @@ static void RenderGradient()
 
         for (int x = 0; x < g_BitmapWidth; x++)
         {
-            *pixel = (uint8)x;
+            *pixel = (uint8)x + xOffset;
             ++pixel;
 
-            *pixel = (uint8)y;
+            *pixel = (uint8)y + yOffset;
             ++pixel;
 
             *pixel = 0;
@@ -76,8 +76,6 @@ static void ResizeDIBSection(int width, int height)
 
     int bitmapMemorySize = g_BytesPerPixel * width * height;
     g_BitmapMemory = VirtualAlloc(nullptr, bitmapMemorySize, MEM_COMMIT, PAGE_READWRITE);
-
-    RenderGradient();
 }
 
 //! Display the bitmap using GDI.
@@ -95,7 +93,7 @@ static void UpdateMyWindow(HDC deviceContext, RECT* windowRect, int x, int y, in
         g_BitmapMemory, &g_BitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 }
 
-static LRESULT CALLBACK WindowCallback(HWND windowHandle, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK WindowCallback(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     LRESULT result = 0;
 
@@ -121,7 +119,7 @@ static LRESULT CALLBACK WindowCallback(HWND windowHandle, UINT msg, WPARAM wPara
         OutputDebugStringA("WM_SIZE\n");
 
         RECT clientRect = {};
-        GetClientRect(windowHandle, &clientRect);
+        GetClientRect(window, &clientRect);
 
         const int width = clientRect.right - clientRect.left;
         const int height = clientRect.bottom - clientRect.top;
@@ -170,7 +168,7 @@ static LRESULT CALLBACK WindowCallback(HWND windowHandle, UINT msg, WPARAM wPara
     case WM_PAINT:  //! The application needs to be re-painted
     {
         PAINTSTRUCT paint = {};
-        HDC deviceContext = BeginPaint(windowHandle, &paint);
+        HDC deviceContext = BeginPaint(window, &paint);
 
         int x = paint.rcPaint.left;
         int y = paint.rcPaint.top;
@@ -179,16 +177,16 @@ static LRESULT CALLBACK WindowCallback(HWND windowHandle, UINT msg, WPARAM wPara
         int height = paint.rcPaint.bottom - paint.rcPaint.top;
 
         RECT clientRect = {};
-        GetClientRect(windowHandle, &clientRect);
+        GetClientRect(window, &clientRect);
 
         UpdateMyWindow(deviceContext, &clientRect, x, y, width, height);
 
-        EndPaint(windowHandle, &paint);
+        EndPaint(window, &paint);
     } break;
 
     default:
     {
-        result = DefWindowProc(windowHandle, msg, wParam, lParam);
+        result = DefWindowProc(window, msg, wParam, lParam);
     }
     }
 
@@ -239,7 +237,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     }
 
     //! Create window instance
-    HWND windowHandle = CreateWindow(
+    HWND window = CreateWindow(
         className,
         windowTitle, // window title
         windowStyle, // style
@@ -253,7 +251,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         nullptr // lpParam
     );
 
-    if (!windowHandle)
+    if (!window)
     {
         // TODO: Logging
         return EXIT_FAILURE;
@@ -261,7 +259,10 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
 
     g_Running = true;
 
-    ShowWindow(windowHandle, SW_SHOW);
+    ShowWindow(window, SW_SHOW);
+
+    int xOffset = 0;
+    int yOffset = 0;
 
     while (g_Running)
     {
@@ -281,9 +282,21 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+        RenderGradient(xOffset, yOffset);
+
+        HDC deviceContext = GetDC(window);
+        RECT clientRect = {};
+        GetClientRect(window, &clientRect);
+        int windowWidth = clientRect.right - clientRect.left;
+        int windowHeight = clientRect.bottom - clientRect.top;
+        UpdateMyWindow(deviceContext, &clientRect, 0, 0, windowWidth, windowHeight);
+        ReleaseDC(window, deviceContext);
+
+        ++xOffset;
     }
 
-    if (!DestroyWindow(windowHandle))
+    if (!DestroyWindow(window))
     {
         // TODO: Logging
     }
