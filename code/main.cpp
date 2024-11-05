@@ -29,21 +29,14 @@ static void RenderGradient(int xOffset, int yOffset)
 
     for (int y = 0; y < g_BitmapHeight; y++)
     {
-        uint8* pixel = (uint8*)row;
+        uint32* pixel = (uint32*)row;
 
         for (int x = 0; x < g_BitmapWidth; x++)
         {
-            *pixel = (uint8)x + xOffset;
-            ++pixel;
+            uint8 blue = x + xOffset;
+            uint8 green = y + yOffset;
 
-            *pixel = (uint8)y + yOffset;
-            ++pixel;
-
-            *pixel = 0;
-            ++pixel;
-
-            *pixel = 0;
-            ++pixel;
+            *pixel++ = ((green << 8) | blue);
         }
 
         row += pitch;
