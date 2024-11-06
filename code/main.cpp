@@ -310,11 +310,13 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     if (!DestroyWindow(window))
     {
         // TODO: Logging
+        return EXIT_FAILURE;
     }
 
     if (!UnregisterClass(className, GetModuleHandle(nullptr)))
     {
         // TODO: Logging
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
