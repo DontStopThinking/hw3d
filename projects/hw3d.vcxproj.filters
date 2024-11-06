@@ -2,8 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\code\main.cpp" />
+    <ClCompile Include="..\code\window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\cleanwindows.h" />
+    <ClInclude Include="..\code\window.h" />
+    <ClInclude Include="..\code\types.h" />
   </ItemGroup>
 </Project>
