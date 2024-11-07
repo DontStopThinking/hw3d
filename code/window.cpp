@@ -37,7 +37,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         window->m_Width = LOWORD(lParam);
         window->m_Height = HIWORD(lParam);
 
-        InvalidateRect(hWnd, nullptr, TRUE);
+        InvalidateRect(hWnd, nullptr, TRUE); //! Redraw window after resizing
 
         return 0;
     } break;
@@ -139,7 +139,7 @@ Window::Window(int width, int height, LPCWSTR title)
     , m_Height{ height }
     , m_Title{ title }
     , m_WindowHandle{ nullptr }
-    , m_ClassName{ L"hw3d" }
+    , m_ClassName{ L"hw3d" } // TODO: Proper multiple windows support?
 {
 }
 
