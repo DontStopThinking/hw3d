@@ -3,10 +3,12 @@
   <ItemGroup>
     <ClCompile Include="..\code\main.cpp" />
     <ClCompile Include="..\code\window.cpp" />
+    <ClCompile Include="..\code\input.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\cleanwindows.h" />
     <ClInclude Include="..\code\window.h" />
     <ClInclude Include="..\code\types.h" />
+    <ClInclude Include="..\code\input.h" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 #include "window.h"
 
 #include "types.h"
+#include "input.h"
 
 LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -47,21 +48,53 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:
     case WM_KEYUP:
     {
-        uint32 vkCode = wParam;
+        uint8 vkCode = (uint8)wParam;
 
-        bool wasDown = ((lParam & (1ll << 30)) != 0); //! Was the same key down before?
+        // TODO: Is the following code needed?
+        /*bool wasDown = ((lParam & (1ll << 30)) != 0); //! Was the same key down before?
         bool isDown = ((lParam & (1ll << 31)) == 0);  //! Is the same key still down?
 
         //! Early exit when the key is held down
         if (wasDown == isDown)
         {
             break;
-        }
+        }*/
 
-        if (vkCode == VK_ESCAPE)
+        bool pressed = (msg == WM_KEYDOWN);
+        Input::OnButton(vkCode, pressed);
+
+        if (Input::ButtonPressed(VK_ESCAPE))
         {
+            OutputDebugString(L"Escape pressed\n");
             PostQuitMessage(0);
-            return 0;
+        }
+        else if (Input::ButtonPressed('W'))
+        {
+            OutputDebugString(L"W pressed\n");
+        }
+        else if (Input::ButtonReleased('W'))
+        {
+            OutputDebugString(L"W released\n");
+        }
+        else if (Input::ButtonCheck(VK_SPACE))
+        {
+            OutputDebugString(L"Space pressed\n");
+        }
+        else if (Input::ButtonPressed(VK_LEFT))
+        {
+            OutputDebugString(L"Left pressed\n");
+        }
+        else if (Input::ButtonPressed(VK_RIGHT))
+        {
+            OutputDebugString(L"Right pressed\n");
+        }
+        else if (Input::ButtonPressed(VK_UP))
+        {
+            OutputDebugString(L"Up pressed\n");
+        }
+        else if (Input::ButtonPressed(VK_DOWN))
+        {
+            OutputDebugString(L"Down pressed\n");
         }
     } break;
 

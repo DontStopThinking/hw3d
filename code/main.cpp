@@ -3,6 +3,7 @@
 #include "cleanwindows.h"
 
 #include "window.h"
+#include "input.h"
 
 constinit bool g_Running = false;
 
@@ -35,6 +36,8 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
 
             TranslateMessage(&msg);
             DispatchMessage(&msg);
+
+            Input::EndFrame();
         }
     }
 

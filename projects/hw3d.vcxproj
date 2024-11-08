@@ -145,11 +145,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\code\input.cpp" />
     <ClCompile Include="..\code\main.cpp" />
     <ClCompile Include="..\code\window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\cleanwindows.h" />
+    <ClInclude Include="..\code\input.h" />
     <ClInclude Include="..\code\types.h" />
     <ClInclude Include="..\code\window.h" />
   </ItemGroup>
