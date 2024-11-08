@@ -96,6 +96,10 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             OutputDebugString(L"Down pressed\n");
         }
+        else if (Input::ButtonCheck('V') && Input::ButtonCheck('C'))
+        {
+            OutputDebugStringA("C + V pressed\n");
+        }
     } break;
 
     case WM_PAINT:  //! The application needs to be re-painted
