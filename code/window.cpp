@@ -28,7 +28,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_SIZE:   //! Window was resized
     {
-        Window* window = (Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+        Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
         if (!window)
         {
@@ -48,7 +48,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:
     case WM_KEYUP:
     {
-        uint8 vkCode = (uint8)wParam;
+        uint8 vkCode = static_cast<uint8>(wParam);
 
         // TODO: Is the following code needed?
         /*bool wasDown = ((lParam & (1ll << 30)) != 0); //! Was the same key down before?
@@ -107,7 +107,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         PAINTSTRUCT paint;
         HDC deviceContext = BeginPaint(hWnd, &paint);
 
-        Window* window = (Window*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+        Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
         window->ClearScreen(deviceContext);
         window->DrawShadedTriangle(deviceContext);
