@@ -38,6 +38,44 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
             break;
         }
 
+        if (Input::ButtonPressed(VK_ESCAPE))
+        {
+            OutputDebugString(L"Escape pressed\n");
+            PostQuitMessage(0);
+        }
+        else if (Input::ButtonPressed('W'))
+        {
+            OutputDebugString(L"W pressed\n");
+        }
+        else if (Input::ButtonReleased('W'))
+        {
+            OutputDebugString(L"W released\n");
+        }
+        else if (Input::ButtonCheck(VK_SPACE))
+        {
+            OutputDebugString(L"Space pressed\n");
+        }
+        else if (Input::ButtonPressed(VK_LEFT))
+        {
+            OutputDebugString(L"Left pressed\n");
+        }
+        else if (Input::ButtonPressed(VK_RIGHT))
+        {
+            OutputDebugString(L"Right pressed\n");
+        }
+        else if (Input::ButtonPressed(VK_UP))
+        {
+            OutputDebugString(L"Up pressed\n");
+        }
+        else if (Input::ButtonPressed(VK_DOWN))
+        {
+            OutputDebugString(L"Down pressed\n");
+        }
+        else if (Input::ButtonCheck('V') && Input::ButtonCheck('C'))
+        {
+            OutputDebugStringA("C + V pressed\n");
+        }
+
         Input::EndFrame();
     }
 
