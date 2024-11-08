@@ -41,6 +41,14 @@ namespace Input
         return s_ButtonUps[button];
     }
 
+    void Clear()
+    {
+        s_ButtonDowns.reset();
+        s_ButtonUps.reset();
+        s_PrevButtonState.reset();
+        s_ButtonState.reset();
+    }
+
     void EndFrame()
     {
         s_PrevButtonState = s_ButtonState;

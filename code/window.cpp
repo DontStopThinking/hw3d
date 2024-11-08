@@ -21,6 +21,12 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         return 0;
     } break;
 
+    case WM_KILLFOCUS:
+    {
+        //! Clear input state when window loses focus so we don't have zombie key presses hanging around.
+        Input::Clear();
+    } break;
+
     case WM_ACTIVATEAPP:
     {
         OutputDebugStringA("WM_ACTIVATEAPP\n");

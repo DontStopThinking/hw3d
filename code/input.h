@@ -7,5 +7,6 @@ namespace Input
     bool ButtonCheck(uint8 button);
     bool ButtonPressed(uint8 button);
     bool ButtonReleased(uint8 button);
+    void Clear();
     void EndFrame();
 }
