@@ -51,9 +51,13 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         {
             OutputDebugString(L"W released\n");
         }
-        else if (Input::ButtonCheck(VK_SPACE))
+        else if (Input::ButtonPressed(VK_SPACE))
         {
             MessageBoxA(nullptr, "Something happened!", "Space Pressed", MB_OK);
+        }
+        else if (Input::ButtonCheck('Z'))
+        {
+            OutputDebugString(L"Z pressed\n");
         }
         else if (Input::ButtonPressed(VK_LEFT))
         {
