@@ -13,7 +13,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
 
     if (!window.Init())
     {
-        // TODO: Logging
+        // TODO(sbalse): Logging
         return EXIT_FAILURE;
     }
 
