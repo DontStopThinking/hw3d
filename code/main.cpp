@@ -23,7 +23,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
     {
         MSG msg = {};
 
-        //! PeekMessage() is non-blocking whereas GetMessage() will block.
+        //! NOTE(sbalse): PeekMessage() is non-blocking whereas GetMessage() will block.
         //! We use PeekMessage() instead of GetMessage() because we want to keep running if there are no
         //! messages.
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))

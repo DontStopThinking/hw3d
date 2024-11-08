@@ -8,10 +8,10 @@ namespace Input
 {
     constexpr uint32 NUMBUTTONS = 256;
 
-    constinit std::bitset<NUMBUTTONS> s_PrevButtonState; //! previous frame's states
-    constinit std::bitset<NUMBUTTONS> s_ButtonState; //! 1 = button held down this frame.
-    constinit std::bitset<NUMBUTTONS> s_ButtonDowns; //! 1 = button pressed this frame.
-    constinit std::bitset<NUMBUTTONS> s_ButtonUps; //! 1 = button released this frame.
+    constinit std::bitset<NUMBUTTONS> s_PrevButtonState; //! NOTE(sbalse): previous frame's states
+    constinit std::bitset<NUMBUTTONS> s_ButtonState; //! NOTE(sbalse): 1 = button held down this frame.
+    constinit std::bitset<NUMBUTTONS> s_ButtonDowns; //! NOTE(sbalse): 1 = button pressed this frame.
+    constinit std::bitset<NUMBUTTONS> s_ButtonUps; //! NOTE(sbalse): 1 = button released this frame.
 
     void OnButton(uint8 button, bool pressed)
     {

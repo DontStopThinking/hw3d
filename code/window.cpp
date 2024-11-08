@@ -23,7 +23,8 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_KILLFOCUS:
     {
-        //! Clear input state when window loses focus so we don't have zombie key presses hanging around.
+        //! NOTE(sbalse): Clear input state when window loses focus so we don't have zombie key presses
+        //! hanging around.
         Input::Clear();
     } break;
 
@@ -44,7 +45,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         window->m_Width = LOWORD(lParam);
         window->m_Height = HIWORD(lParam);
 
-        InvalidateRect(hWnd, nullptr, TRUE); //! Redraw window after resizing
+        InvalidateRect(hWnd, nullptr, TRUE); //! NOTE(sbalse): Redraw window after resizing
 
         return 0;
     } break;
@@ -56,7 +57,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         uint8 vkCode = static_cast<uint8>(wParam);
 
-        // TODO: Is the following code needed?
+        // TODO(sbalse): Is the following code needed?
         /*bool wasDown = ((lParam & (1ll << 30)) != 0); //! Was the same key down before?
         bool isDown = ((lParam & (1ll << 31)) == 0);  //! Is the same key still down?
 
@@ -135,7 +136,7 @@ void Window::DrawShadedTriangle(HDC deviceContext)
     gTriangle.Vertex2 = 1;
     gTriangle.Vertex3 = 2;
 
-    // Draw a shaded triangle.
+    //! NOTE(sbalse): Draw a shaded triangle.
     GradientFill(deviceContext, vertex, 3, &gTriangle, 1, GRADIENT_FILL_TRIANGLE);
 }
 
@@ -150,7 +151,7 @@ Window::Window(int width, int height, LPCWSTR title)
 
 bool Window::Init()
 {
-    // Register window class
+    //! NOTE(sbalse): Register window class
     WNDCLASSEX wc =
     {
         .cbSize = sizeof(wc),
@@ -163,7 +164,7 @@ bool Window::Init()
 
     if (!RegisterClassEx(&wc))
     {
-        // TODO: Logging
+        // TODO(sbalse): Logging
         return false;
     }
 
@@ -182,11 +183,11 @@ bool Window::Init()
 
     if (!AdjustWindowRect(&wr, windowStyle, FALSE))
     {
-        // TODO: Logging
+        // TODO(sbalse): Logging
         return false;
     }
 
-    //! Create window instance
+    //! NOTE(sbalse): Create window instance
     m_WindowHandle = CreateWindow(
         m_ClassName,
         m_Title, // window title
@@ -202,7 +203,7 @@ bool Window::Init()
     );
     if (!m_WindowHandle)
     {
-        // TODO: Logging
+        // TODO(sbalse): Logging
         return false;
     }
 
