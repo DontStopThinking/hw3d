@@ -28,17 +28,17 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         //! messages.
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
-            if (msg.message == WM_QUIT)
-            {
-                g_Running = false;
-                break;
-            }
-
             TranslateMessage(&msg);
             DispatchMessage(&msg);
-
-            Input::EndFrame();
         }
+
+        if (msg.message == WM_QUIT)
+        {
+            g_Running = false;
+            break;
+        }
+
+        Input::EndFrame();
     }
 
     window.Destroy();
