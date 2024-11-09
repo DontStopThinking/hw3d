@@ -38,49 +38,49 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
             break;
         }
 
-        if (Input::ButtonPressed(VK_ESCAPE))
+        if (KeyboardButtonPressed(VK_ESCAPE))
         {
             OutputDebugString(L"Escape pressed\n");
             PostQuitMessage(0);
         }
-        else if (Input::ButtonPressed('W'))
+        else if (KeyboardButtonPressed('W'))
         {
             OutputDebugString(L"W pressed\n");
         }
-        else if (Input::ButtonReleased('W'))
+        else if (KeyboardButtonReleased('W'))
         {
             OutputDebugString(L"W released\n");
         }
-        else if (Input::ButtonPressed(VK_SPACE))
+        else if (KeyboardButtonPressed(VK_SPACE))
         {
             MessageBoxA(nullptr, "Something happened!", "Space Pressed", MB_OK);
         }
-        else if (Input::ButtonCheck('Z'))
+        else if (KeyboardButtonCheck('Z'))
         {
             OutputDebugString(L"Z pressed\n");
         }
-        else if (Input::ButtonPressed(VK_LEFT))
+        else if (KeyboardButtonPressed(VK_LEFT))
         {
             OutputDebugString(L"Left pressed\n");
         }
-        else if (Input::ButtonPressed(VK_RIGHT))
+        else if (KeyboardButtonPressed(VK_RIGHT))
         {
             OutputDebugString(L"Right pressed\n");
         }
-        else if (Input::ButtonPressed(VK_UP))
+        else if (KeyboardButtonPressed(VK_UP))
         {
             OutputDebugString(L"Up pressed\n");
         }
-        else if (Input::ButtonPressed(VK_DOWN))
+        else if (KeyboardButtonPressed(VK_DOWN))
         {
             OutputDebugString(L"Down pressed\n");
         }
-        else if (Input::ButtonCheck('V') && Input::ButtonCheck('C'))
+        else if (KeyboardButtonCheck('V') && KeyboardButtonCheck('C'))
         {
             OutputDebugStringA("C + V pressed\n");
         }
 
-        Input::EndFrame();
+        InputEndFrame();
     }
 
     window.Destroy();

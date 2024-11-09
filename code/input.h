@@ -1,12 +1,9 @@
 #pragma once
 #include "types.h"
 
-namespace Input
-{
-    void OnButton(uint8 button, bool pressed);
-    bool ButtonCheck(uint8 button);
-    bool ButtonPressed(uint8 button);
-    bool ButtonReleased(uint8 button);
-    void Clear();
-    void EndFrame();
-}
+void InputUpdate(uint8 button, bool pressed);
+bool KeyboardButtonCheck(uint8 button);
+bool KeyboardButtonPressed(uint8 button);
+bool KeyboardButtonReleased(uint8 button);
+void InputClear();
+void InputEndFrame();

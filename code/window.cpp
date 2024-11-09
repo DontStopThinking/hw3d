@@ -25,7 +25,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     {
         //! NOTE(sbalse): Clear input state when window loses focus so we don't have zombie key presses
         //! hanging around.
-        Input::Clear();
+        InputClear();
     } break;
 
     case WM_ACTIVATEAPP:
@@ -68,7 +68,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }*/
 
         bool pressed = (msg == WM_KEYDOWN);
-        Input::OnButton(vkCode, pressed);
+        InputUpdate(vkCode, pressed);
     } break;
 
     case WM_PAINT:  //! The application needs to be re-painted
