@@ -88,27 +88,27 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         {
             OutputDebugStringA("C + V pressed\n");
         }
-        else if (MouseLeftButtonPressed())
+        else if (MouseButtonPressed(MouseButton::LBUTTON))
         {
             OutputDebugString(L"Mouse Left pressed\n");
         }
-        else if (MouseRightButtonPressed())
+        else if (MouseButtonPressed(MouseButton::RBUTTON))
         {
             OutputDebugString(L"Mouse Right pressed\n");
         }
-        else if (MouseMiddleButtonPressed())
+        else if (MouseButtonPressed(MouseButton::MBUTTON))
         {
             OutputDebugString(L"Mouse Middle pressed\n");
         }
-        else if (MouseLeftButtonReleased())
+        else if (MouseButtonReleased(MouseButton::LBUTTON))
         {
             OutputDebugString(L"Mouse Left released\n");
         }
-        else if (MouseRightButtonReleased())
+        else if (MouseButtonReleased(MouseButton::RBUTTON))
         {
             OutputDebugString(L"Mouse Right released\n");
         }
-        else if (MouseMiddleButtonReleased())
+        else if (MouseButtonReleased(MouseButton::MBUTTON))
         {
             OutputDebugString(L"Mouse Middle released\n");
         }

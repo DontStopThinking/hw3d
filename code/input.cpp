@@ -46,34 +46,64 @@ int MouseY()
     return s_MouseY;
 }
 
-bool MouseLeftButtonPressed()
+bool MouseButtonPressed(MouseButton button)
 {
-    return s_LeftPressed;
+    bool result = false;
+
+    switch (button)
+    {
+    case MouseButton::LBUTTON:
+    {
+        result = s_LeftPressed;
+    } break;
+
+    case MouseButton::RBUTTON:
+    {
+        result = s_RightPressed;
+    } break;
+
+    case MouseButton::MBUTTON:
+    {
+        result = s_MiddlePressed;
+    } break;
+
+    default:
+    {
+        result = false;
+    } break;
+    }
+
+    return result;
 }
 
-bool MouseLeftButtonReleased()
+bool MouseButtonReleased(MouseButton button)
 {
-    return s_LeftReleased;
-}
+    bool result = false;
 
-bool MouseRightButtonPressed()
-{
-    return s_RightPressed;
-}
+    switch (button)
+    {
+    case MouseButton::LBUTTON:
+    {
+        result = s_LeftReleased;
+    } break;
 
-bool MouseRightButtonReleased()
-{
-    return s_RightReleased;
-}
+    case MouseButton::RBUTTON:
+    {
+        result = s_RightReleased;
+    } break;
 
-bool MouseMiddleButtonPressed()
-{
-    return s_MiddlePressed;
-}
+    case MouseButton::MBUTTON:
+    {
+        result = s_MiddleReleased;
+    } break;
 
-bool MouseMiddleButtonReleased()
-{
-    return s_MiddleReleased;
+    default:
+    {
+        result = false;
+    } break;
+    }
+
+    return result;
 }
 
 void InputClear(bool resetPrevFrameInput)
