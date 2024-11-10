@@ -23,9 +23,10 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_KILLFOCUS:
     {
-        //! NOTE(sbalse): Clear input state when window loses focus so we don't have zombie key presses
+        //! NOTE(sbalse): Clear all input state when window loses focus so we don't have zombie key presses
         //! hanging around.
-        InputClear();
+        bool clearPrevFrameInput = true;
+        InputClear(clearPrevFrameInput);
     } break;
 
     case WM_ACTIVATEAPP:
@@ -68,7 +69,46 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }*/
 
         bool pressed = (msg == WM_KEYDOWN);
-        InputUpdate(vkCode, pressed);
+        KeyboardInputUpdate(vkCode, pressed);
+    } break;
+
+    case WM_MOUSEMOVE: //! The mouse has moved
+    {
+        Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
+
+        POINTS pt = MAKEPOINTS(lParam);
+
+        // If mouse is inside the client region.
+        if (pt.x >= 0 && pt.x < window->m_Width && pt.y >= 0 && pt.y < window->m_Height)
+        {
+            SetMousePosition(pt.x, pt.y);
+        }
+    } break;
+
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
+    case WM_MBUTTONDOWN:
+    case WM_MBUTTONUP:
+    {
+        POINTS pt = MAKEPOINTS(lParam);
+
+        bool isDown = (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN);
+        MouseButton button;
+        if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP)
+        {
+            button = MouseButton::LBUTTON;
+        }
+        else if (msg == WM_RBUTTONDOWN || msg == WM_RBUTTONUP)
+        {
+            button = MouseButton::RBUTTON;
+        }
+        else if (msg == WM_MBUTTONDOWN || msg == WM_MBUTTONUP)
+        {
+            button = MouseButton::MBUTTON;
+        }
+        MouseInputUpdate(isDown, button);
     } break;
 
     case WM_PAINT:  //! The application needs to be re-painted
@@ -221,4 +261,9 @@ void Window::Destroy()
         UnregisterClass(m_ClassName, GetModuleHandle(nullptr));
         DestroyWindow(m_WindowHandle);
     }
+}
+
+void Window::SetTitle(LPCWSTR title)
+{
+    SetWindowText(m_WindowHandle, title);
 }

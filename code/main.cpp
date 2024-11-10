@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstdio>
 
 #include "cleanwindows.h"
 
@@ -19,6 +20,8 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
 
     g_Running = true;
 
+    wchar_t windowTitle[32] = {};
+
     while (g_Running)
     {
         MSG msg = {};
@@ -38,10 +41,16 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
             break;
         }
 
+        // NOTE(sbalse): Set window title to mouse x and y.
+        int32 mouseX = MouseX();
+        int32 mouseY = MouseY();
+        _snwprintf(windowTitle, 32, L"Mouse: (%d, %d)\n", mouseX, mouseY);
+        window.SetTitle(windowTitle);
+
         if (KeyboardButtonPressed(VK_ESCAPE))
         {
             OutputDebugString(L"Escape pressed\n");
-            PostQuitMessage(0);
+            PostQuitMessage(0); // Quit game on escape pressed
         }
         else if (KeyboardButtonPressed('W'))
         {
@@ -78,6 +87,30 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         else if (KeyboardButtonCheck('V') && KeyboardButtonCheck('C'))
         {
             OutputDebugStringA("C + V pressed\n");
+        }
+        else if (MouseLeftButtonPressed())
+        {
+            OutputDebugString(L"Mouse Left pressed\n");
+        }
+        else if (MouseRightButtonPressed())
+        {
+            OutputDebugString(L"Mouse Right pressed\n");
+        }
+        else if (MouseMiddleButtonPressed())
+        {
+            OutputDebugString(L"Mouse Middle pressed\n");
+        }
+        else if (MouseLeftButtonReleased())
+        {
+            OutputDebugString(L"Mouse Left released\n");
+        }
+        else if (MouseRightButtonReleased())
+        {
+            OutputDebugString(L"Mouse Right released\n");
+        }
+        else if (MouseMiddleButtonReleased())
+        {
+            OutputDebugString(L"Mouse Middle released\n");
         }
 
         InputEndFrame();

@@ -21,4 +21,5 @@ public:
 
     bool Init();
     void Destroy();
+    void SetTitle(LPCWSTR title);
 };
