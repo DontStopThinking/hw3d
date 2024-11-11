@@ -267,3 +267,24 @@ void Window::SetTitle(LPCWSTR title)
 {
     SetWindowText(m_WindowHandle, title);
 }
+
+bool Window::ProcessMessages()
+{
+    MSG msg = {};
+
+    //! NOTE(sbalse): PeekMessage() is non-blocking whereas GetMessage() will block.
+    //! We use PeekMessage() instead of GetMessage() because we want to keep running if there are no
+    //! messages.
+    while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
+    if (msg.message == WM_QUIT)
+    {
+        return false;
+    }
+
+    return true;
+}
