@@ -42,8 +42,8 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         }
 
         // NOTE(sbalse): Set window title to mouse x and y.
-        int32 mouseX = MouseX();
-        int32 mouseY = MouseY();
+        i32 mouseX = MouseX();
+        i32 mouseY = MouseY();
         _snwprintf(windowTitle, 32, L"Mouse: (%d, %d)\n", mouseX, mouseY);
         window.SetTitle(windowTitle);
 

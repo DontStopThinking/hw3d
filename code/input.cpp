@@ -5,32 +5,32 @@
 #include "types.h"
 
 // Keyboard
-constexpr uint32 NUMBUTTONS = 256;
+constexpr u32 NUMBUTTONS = 256;
 constinit std::bitset<NUMBUTTONS> s_PrevButtonState; //! NOTE(sbalse): previous frame's states
 constinit std::bitset<NUMBUTTONS> s_ButtonState; //! NOTE(sbalse): 1 = button held down this frame.
 constinit std::bitset<NUMBUTTONS> s_ButtonDowns; //! NOTE(sbalse): 1 = button pressed this frame.
 constinit std::bitset<NUMBUTTONS> s_ButtonUps; //! NOTE(sbalse): 1 = button released this frame.
 
 // Mouse
-constexpr uint8 NUMMOUSEBUTTONS = static_cast<uint8>(MouseButton::COUNT);
+constexpr u8 NUMMOUSEBUTTONS = static_cast<u8>(MouseButton::COUNT);
 constinit std::bitset<NUMMOUSEBUTTONS> s_PrevMouseButtonState; // NOTE(sbalse): previous frame's states
 constinit std::bitset<NUMMOUSEBUTTONS> s_MouseButtonState; // NOTE(sbalse): 1 = button held down across multiple frames
 constinit std::bitset<NUMMOUSEBUTTONS> s_MouseButtonDowns; // NOTE(sbalse): 1 = button pressed once this frame
 constinit std::bitset<NUMMOUSEBUTTONS> s_MouseButtonUps; // NOTE(sbalse): 1 = button released this frame.
-constinit int32 s_MouseX = 0;
-constinit int32 s_MouseY = 0;
+constinit i32 s_MouseX = 0;
+constinit i32 s_MouseY = 0;
 
-bool KeyboardButtonCheck(uint8 button)
+bool KeyboardButtonCheck(u8 button)
 {
     return s_ButtonState[button];
 }
 
-bool KeyboardButtonPressed(uint8 button)
+bool KeyboardButtonPressed(u8 button)
 {
     return s_ButtonDowns[button] && !s_PrevButtonState[button];
 }
 
-bool KeyboardButtonReleased(uint8 button)
+bool KeyboardButtonReleased(u8 button)
 {
     return s_ButtonUps[button];
 }
@@ -47,19 +47,19 @@ int MouseY()
 
 bool MouseButtonCheck(MouseButton button)
 {
-    uint8 buttonInt = static_cast<uint8>(button);
+    u8 buttonInt = static_cast<u8>(button);
     return s_MouseButtonState[buttonInt];
 }
 
 bool MouseButtonPressed(MouseButton button)
 {
-    uint8 buttonInt = static_cast<uint8>(button);
+    u8 buttonInt = static_cast<u8>(button);
     return s_MouseButtonDowns[buttonInt] && !s_PrevMouseButtonState[buttonInt];
 }
 
 bool MouseButtonReleased(MouseButton button)
 {
-    uint8 buttonInt = static_cast<uint8>(button);
+    u8 buttonInt = static_cast<u8>(button);
     return s_MouseButtonUps[buttonInt];
 }
 
@@ -90,7 +90,7 @@ void InputEndFrame()
     InputClear(resetPrevFrameInput);
 }
 
-void KeyboardInputUpdate(uint8 button, bool pressed)
+void KeyboardInputUpdate(u8 button, bool pressed)
 {
     s_ButtonState[button] = pressed;
     if (pressed)
@@ -103,7 +103,7 @@ void KeyboardInputUpdate(uint8 button, bool pressed)
     }
 }
 
-void SetMousePosition(int32 x, int32 y)
+void SetMousePosition(i32 x, i32 y)
 {
     s_MouseX = x;
     s_MouseY = y;
@@ -111,7 +111,7 @@ void SetMousePosition(int32 x, int32 y)
 
 void MouseInputUpdate(MouseButton button, bool pressed)
 {
-    uint8 buttonInt = static_cast<uint8>(button);
+    u8 buttonInt = static_cast<u8>(button);
     s_MouseButtonState[buttonInt] = pressed;
 
     if (pressed)

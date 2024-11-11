@@ -56,7 +56,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:
     case WM_KEYUP:
     {
-        uint8 vkCode = static_cast<uint8>(wParam);
+        u8 vkCode = static_cast<u8>(wParam);
 
         // TODO(sbalse): Is the following code needed?
         /*bool wasDown = ((lParam & (1ll << 30)) != 0); //! Was the same key down before?
