@@ -12,12 +12,11 @@ constinit std::bitset<NUMBUTTONS> s_ButtonDowns; //! NOTE(sbalse): 1 = button pr
 constinit std::bitset<NUMBUTTONS> s_ButtonUps; //! NOTE(sbalse): 1 = button released this frame.
 
 // Mouse
-constinit bool s_LeftPressed = false;
-constinit bool s_LeftReleased = false;
-constinit bool s_RightPressed = false;
-constinit bool s_RightReleased = false;
-constinit bool s_MiddlePressed = false;
-constinit bool s_MiddleReleased = false;
+constexpr uint8 NUMMOUSEBUTTONS = static_cast<uint8>(MouseButton::COUNT);
+constinit std::bitset<NUMMOUSEBUTTONS> s_PrevMouseButtonState; // NOTE(sbalse): previous frame's states
+constinit std::bitset<NUMMOUSEBUTTONS> s_MouseButtonState; // NOTE(sbalse): 1 = button held down across multiple frames
+constinit std::bitset<NUMMOUSEBUTTONS> s_MouseButtonDowns; // NOTE(sbalse): 1 = button pressed once this frame
+constinit std::bitset<NUMMOUSEBUTTONS> s_MouseButtonUps; // NOTE(sbalse): 1 = button released this frame.
 constinit int32 s_MouseX = 0;
 constinit int32 s_MouseY = 0;
 
@@ -46,64 +45,22 @@ int MouseY()
     return s_MouseY;
 }
 
+bool MouseButtonCheck(MouseButton button)
+{
+    uint8 buttonInt = static_cast<uint8>(button);
+    return s_MouseButtonState[buttonInt];
+}
+
 bool MouseButtonPressed(MouseButton button)
 {
-    bool result = false;
-
-    switch (button)
-    {
-    case MouseButton::LBUTTON:
-    {
-        result = s_LeftPressed;
-    } break;
-
-    case MouseButton::RBUTTON:
-    {
-        result = s_RightPressed;
-    } break;
-
-    case MouseButton::MBUTTON:
-    {
-        result = s_MiddlePressed;
-    } break;
-
-    default:
-    {
-        result = false;
-    } break;
-    }
-
-    return result;
+    uint8 buttonInt = static_cast<uint8>(button);
+    return s_MouseButtonDowns[buttonInt] && !s_PrevMouseButtonState[buttonInt];
 }
 
 bool MouseButtonReleased(MouseButton button)
 {
-    bool result = false;
-
-    switch (button)
-    {
-    case MouseButton::LBUTTON:
-    {
-        result = s_LeftReleased;
-    } break;
-
-    case MouseButton::RBUTTON:
-    {
-        result = s_RightReleased;
-    } break;
-
-    case MouseButton::MBUTTON:
-    {
-        result = s_MiddleReleased;
-    } break;
-
-    default:
-    {
-        result = false;
-    } break;
-    }
-
-    return result;
+    uint8 buttonInt = static_cast<uint8>(button);
+    return s_MouseButtonUps[buttonInt];
 }
 
 void InputClear(bool resetPrevFrameInput)
@@ -113,20 +70,24 @@ void InputClear(bool resetPrevFrameInput)
     if (resetPrevFrameInput)
     {
         s_PrevButtonState.reset();
+        s_PrevMouseButtonState.reset();
     }
     s_ButtonState.reset();
-    s_LeftPressed = false;
-    s_LeftReleased = false;
-    s_RightPressed = false;
-    s_RightReleased = false;
-    s_MiddlePressed = false;
-    s_MiddleReleased = false;
+    s_MouseButtonDowns.reset();
+    s_MouseButtonUps.reset();
+
+    // NOTE(sbalse): We don't call s_MouseButtonState.reset() here because unlike keyboard messages, which get
+    // sent each frame that the key is held down, mouse events only get sent once when a mouse button is first
+    // pressed. So we need to track when the mouse button was last pressed and then released to be able to
+    // tell if it was held down.
 }
 
 void InputEndFrame()
 {
     s_PrevButtonState = s_ButtonState;
-    InputClear(false);
+    s_PrevMouseButtonState = s_MouseButtonState;
+    bool resetPrevFrameInput = false;
+    InputClear(resetPrevFrameInput);
 }
 
 void KeyboardInputUpdate(uint8 button, bool pressed)
@@ -148,44 +109,17 @@ void SetMousePosition(int32 x, int32 y)
     s_MouseY = y;
 }
 
-void MouseInputUpdate(bool pressed, MouseButton button)
+void MouseInputUpdate(MouseButton button, bool pressed)
 {
-    switch (button)
-    {
-    case MouseButton::LBUTTON:
-    {
-        if (pressed)
-        {
-            s_LeftPressed = true;
-        }
-        else
-        {
-            s_LeftReleased = true;
-        }
-    } break;
+    uint8 buttonInt = static_cast<uint8>(button);
+    s_MouseButtonState[buttonInt] = pressed;
 
-    case MouseButton::RBUTTON:
+    if (pressed)
     {
-        if (pressed)
-        {
-            s_RightPressed = true;
-        }
-        else
-        {
-            s_RightReleased = true;
-        }
-    } break;
-
-    case MouseButton::MBUTTON:
+        s_MouseButtonDowns[buttonInt] = true;
+    }
+    else
     {
-        if (pressed)
-        {
-            s_MiddlePressed = true;
-        }
-        else
-        {
-            s_MiddleReleased = true;
-        }
-    } break;
+        s_MouseButtonUps[buttonInt] = true;
     }
 }

@@ -66,7 +66,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         }
         else if (KeyboardButtonCheck('Z'))
         {
-            OutputDebugString(L"Z pressed\n");
+            OutputDebugString(L"Z held\n");
         }
         else if (KeyboardButtonPressed(VK_LEFT))
         {
@@ -88,10 +88,6 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         {
             OutputDebugStringA("C + V pressed\n");
         }
-        else if (MouseButtonPressed(MouseButton::LBUTTON))
-        {
-            OutputDebugString(L"Mouse Left pressed\n");
-        }
         else if (MouseButtonPressed(MouseButton::RBUTTON))
         {
             OutputDebugString(L"Mouse Right pressed\n");
@@ -111,6 +107,10 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
         else if (MouseButtonReleased(MouseButton::MBUTTON))
         {
             OutputDebugString(L"Mouse Middle released\n");
+        }
+        else if (MouseButtonCheck(MouseButton::LBUTTON))
+        {
+            OutputDebugString(L"Mouse Left held\n");
         }
 
         InputEndFrame();

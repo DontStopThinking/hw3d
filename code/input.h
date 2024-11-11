@@ -9,10 +9,12 @@ enum class MouseButton
 {
     LBUTTON,
     RBUTTON,
-    MBUTTON
+    MBUTTON,
+    COUNT
 };
 int MouseX();
 int MouseY();
+bool MouseButtonCheck(MouseButton button);
 bool MouseButtonPressed(MouseButton button);
 bool MouseButtonReleased(MouseButton button);
 
@@ -20,4 +22,4 @@ void InputClear(bool resetPrevFrameInput);
 void InputEndFrame();
 void KeyboardInputUpdate(uint8 button, bool pressed);
 void SetMousePosition(int32 x, int32 y);
-void MouseInputUpdate(bool pressed, MouseButton button);
+void MouseInputUpdate(MouseButton button, bool pressed);

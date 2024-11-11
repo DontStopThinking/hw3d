@@ -92,9 +92,6 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_MBUTTONDOWN:
     case WM_MBUTTONUP:
     {
-        POINTS pt = MAKEPOINTS(lParam);
-
-        bool isDown = (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN);
         MouseButton button;
         if (msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP)
         {
@@ -108,7 +105,10 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             button = MouseButton::MBUTTON;
         }
-        MouseInputUpdate(isDown, button);
+
+        bool isDown = (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN);
+
+        MouseInputUpdate(button, isDown);
     } break;
 
     case WM_PAINT:  //! The application needs to be re-painted
