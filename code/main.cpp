@@ -2,12 +2,15 @@
 #include <cstdio>
 
 #include "cleanwindows.h"
-
 #include "window.h"
 #include "input.h"
 #include "engine.h"
 
-int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR /*lpCmdLine*/, int /*nCmdShow*/)
+int APIENTRY WinMain(
+    HINSTANCE /*hInstance*/,
+    HINSTANCE /*hPrevInstance*/,
+    PSTR /*lpCmdLine*/,
+    int /*nCmdShow*/)
 {
     Window window(1280, 720, L"HW3D Engine");
 
