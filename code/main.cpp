@@ -84,7 +84,7 @@ int APIENTRY WinMain(HINSTANCE /*hInstance*/, HINSTANCE /*hPrevInstance*/, PSTR 
 {
     Window window(1280, 720, L"HW3D Engine");
 
-    if (!window.Init())
+    if (!window.InitAndShow())
     {
         // TODO(sbalse): Logging
         return EXIT_FAILURE;

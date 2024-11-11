@@ -19,7 +19,7 @@ private:
 public:
     Window(int width, int height, LPCWSTR title);
 
-    bool Init();
+    bool InitAndShow();
     void Destroy();
     void SetTitle(LPCWSTR title);
     bool ProcessMessages();

@@ -188,7 +188,7 @@ Window::Window(int width, int height, LPCWSTR title)
 {
 }
 
-bool Window::Init()
+bool Window::InitAndShow()
 {
     //! NOTE(sbalse): Register window class
     WNDCLASSEX wc =
