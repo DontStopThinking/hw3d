@@ -194,7 +194,7 @@ bool Window::InitAndShow()
     WNDCLASSEX wc =
     {
         .cbSize = sizeof(wc),
-        .style = CS_OWNDC,
+        .style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW,
         .lpfnWndProc = WndProc,
         .hInstance = GetModuleHandle(nullptr),
         .hCursor = LoadCursor(nullptr, IDC_ARROW),
@@ -210,8 +210,7 @@ bool Window::InitAndShow()
 
     const LPCWSTR windowTitle = L"HW3D Window";
 
-    const DWORD windowStyle = WS_CAPTION | WS_MINIMIZEBOX | CS_HREDRAW | CS_VREDRAW | CS_OWNDC |
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+    const DWORD windowStyle = WS_OVERLAPPEDWINDOW;
 
     RECT wr
     {
