@@ -3,7 +3,7 @@
 #include "cleanwindows.h"
 #include "input.h"
 
-static void DoFrame()
+void DoFrame()
 {
     if (KeyboardButtonPressed(VK_ESCAPE))
     {
@@ -72,7 +72,7 @@ static void DoFrame()
     }
 }
 
-static void EndFrame()
+void EndFrame()
 {
     InputEndFrame();
 }
