@@ -197,6 +197,7 @@ bool Window::InitAndShow()
         .style = CS_OWNDC,
         .lpfnWndProc = WndProc,
         .hInstance = GetModuleHandle(nullptr),
+        .hCursor = LoadCursor(nullptr, IDC_ARROW),
         .lpszClassName = m_ClassName,
         // .hIcon
     };
