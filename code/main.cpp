@@ -7,10 +7,10 @@
 #include "engine.h"
 
 int APIENTRY WinMain(
-    HINSTANCE /*hInstance*/,
-    HINSTANCE /*hPrevInstance*/,
-    PSTR /*lpCmdLine*/,
-    int /*nCmdShow*/)
+    _In_ HINSTANCE /*hInstance*/,
+    _In_opt_ HINSTANCE /*hPrevInstance*/,
+    _In_ LPSTR /*lpCmdLine*/,
+    _In_ int /*nCmdShow*/)
 {
     Window window(1280, 720, L"HW3D Engine");
 
