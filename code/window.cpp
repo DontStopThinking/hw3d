@@ -34,22 +34,6 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         OutputDebugStringA("WM_ACTIVATEAPP\n");
     } break;
 
-    case WM_SIZE:   //! Window was resized
-    {
-        Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-        if (!window)
-        {
-            break;
-        }
-
-        window->m_Width = LOWORD(lParam);
-        window->m_Height = HIWORD(lParam);
-
-        InvalidateRect(hWnd, nullptr, TRUE); //! NOTE(sbalse): Redraw window after resizing
-
-        return 0;
-    } break;
-
     case WM_SYSKEYDOWN:
     case WM_SYSKEYUP:
     case WM_KEYDOWN:
@@ -110,21 +94,6 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         MouseInputUpdate(button, isDown);
     } break;
 
-    case WM_PAINT:  //! The application needs to be re-painted
-    {
-        PAINTSTRUCT paint;
-        HDC deviceContext = BeginPaint(hWnd, &paint);
-
-        Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-
-        window->ClearScreen(deviceContext);
-        window->DrawShadedTriangle(deviceContext);
-
-        EndPaint(hWnd, &paint);
-
-        return 0;
-    } break;
-
     default:
     {
         result = DefWindowProc(hWnd, msg, wParam, lParam);
@@ -134,62 +103,22 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return result;
 }
 
-void Window::ClearScreen(HDC deviceContext)
-{
-    HBRUSH blackBrush = CreateSolidBrush(RGB(0, 0, 0));
-
-    RECT rect;
-    GetClientRect(m_WindowHandle, &rect);
-
-    FillRect(deviceContext, &rect, blackBrush);
-
-    DeleteObject(blackBrush);
-}
-
-void Window::DrawShadedTriangle(HDC deviceContext)
-{
-    TRIVERTEX vertex[3] = {};
-    vertex[0].x = m_Width / 2;
-    vertex[0].y = m_Height / 4;
-    vertex[0].Red = 0xff00;
-    vertex[0].Green = 0x8000;
-    vertex[0].Blue = 0x0000;
-    vertex[0].Alpha = 0x0000;
-
-    vertex[1].x = m_Width / 4;
-    vertex[1].y = 3 * m_Height / 4;
-    vertex[1].Red = 0x9000;
-    vertex[1].Green = 0x0000;
-    vertex[1].Blue = 0x9000;
-    vertex[1].Alpha = 0x0000;
-
-    vertex[2].x = 3 * m_Width / 4;
-    vertex[2].y = 3 * m_Height / 4;
-    vertex[2].Red = 0x9000;
-    vertex[2].Green = 0x0000;
-    vertex[2].Blue = 0x9000;
-    vertex[2].Alpha = 0x0000;
-
-    GRADIENT_TRIANGLE gTriangle = {};
-    gTriangle.Vertex1 = 0;
-    gTriangle.Vertex2 = 1;
-    gTriangle.Vertex3 = 2;
-
-    //! NOTE(sbalse): Draw a shaded triangle.
-    GradientFill(deviceContext, vertex, 3, &gTriangle, 1, GRADIENT_FILL_TRIANGLE);
-}
-
-Window::Window(int width, int height, LPCWSTR title)
-    : m_Width{ width }
-    , m_Height{ height }
-    , m_Title{ title }
+Window::Window()
+    : m_Width{ 0 }
+    , m_Height{ 0 }
+    , m_Title{ nullptr }
     , m_WindowHandle{ nullptr }
     , m_ClassName{ L"hw3d" } // TODO: Proper multiple windows support?
+    , m_IsRunning{ false }
 {
 }
 
-bool Window::InitAndShow()
+bool Window::Init(int width, int height, LPCWSTR title)
 {
+    m_Width = width;
+    m_Height = height;
+    m_Title = title;
+
     //! NOTE(sbalse): Register window class
     WNDCLASSEX wc =
     {
@@ -248,9 +177,19 @@ bool Window::InitAndShow()
 
     SetWindowLongPtr(m_WindowHandle, GWLP_USERDATA, LONG_PTR(this));
 
-    ShowWindow(m_WindowHandle, SW_SHOW);
+    // ShowWindow(m_WindowHandle, SW_SHOW);
+
+    // NOTE(sbalse): Initialize graphics
+    //m_Graphics.Init(m_WindowHandle);
+
+    m_IsRunning = true;
 
     return true;
+}
+
+void Window::Show()
+{
+    ShowWindow(m_WindowHandle, SW_SHOW);
 }
 
 void Window::Destroy()
@@ -267,7 +206,7 @@ void Window::SetTitle(LPCWSTR title)
     SetWindowText(m_WindowHandle, title);
 }
 
-bool Window::ProcessMessages()
+void Window::ProcessMessages()
 {
     MSG msg = {};
 
@@ -282,8 +221,6 @@ bool Window::ProcessMessages()
 
     if (msg.message == WM_QUIT)
     {
-        return false;
+        m_IsRunning = false;
     }
-
-    return true;
 }

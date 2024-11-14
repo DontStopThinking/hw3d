@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cleanwindows.h"
+#include "graphics.h"
 
 class Window
 {
@@ -10,17 +11,18 @@ private:
     LPCWSTR m_Title;
     HWND m_WindowHandle;
     LPCWSTR m_ClassName;
+    bool m_IsRunning;
 
     static LRESULT CALLBACK WndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
 
-    void ClearScreen(HDC deviceContext);
-    void DrawShadedTriangle(HDC deviceContext);
-
 public:
-    Window(int width, int height, LPCWSTR title);
+    Window();
 
-    bool InitAndShow();
+    bool Init(int width, int height, LPCWSTR title);
+    void Show();
     void Destroy();
     void SetTitle(LPCWSTR title);
-    bool ProcessMessages();
+    void ProcessMessages();
+    HWND GetWindowHandle() const { return m_WindowHandle; }
+    bool IsRunning() const { return m_IsRunning; }
 };

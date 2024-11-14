@@ -2,9 +2,7 @@
 #include <cstdio>
 
 #include "cleanwindows.h"
-#include "window.h"
-#include "input.h"
-#include "engine.h"
+#include "control.h"
 
 int APIENTRY WinMain(
     _In_ HINSTANCE /*hInstance*/,
@@ -12,22 +10,14 @@ int APIENTRY WinMain(
     _In_ LPSTR /*lpCmdLine*/,
     _In_ int /*nCmdShow*/)
 {
-    Window window(1280, 720, L"HW3D Engine");
+    ControlInit();
 
-    if (!window.InitAndShow())
+    // NOTE(sbalse): Main engine loop.
+    while (ControlRun())
     {
-        // TODO(sbalse): Logging
-        return EXIT_FAILURE;
     }
 
-    while (window.ProcessMessages())
-    {
-        DoFrame();
-
-        EndFrame();
-    }
-
-    window.Destroy();
+    ControlShutdown();
 
     return EXIT_SUCCESS;
 }
