@@ -12,7 +12,6 @@
     <ClInclude Include="..\code\window.h" />
     <ClInclude Include="..\code\types.h" />
     <ClInclude Include="..\code\input.h" />
-    <ClInclude Include="..\code\todo.h" />
     <ClInclude Include="..\code\graphics.h" />
     <ClInclude Include="..\code\control.h" />
   </ItemGroup>
