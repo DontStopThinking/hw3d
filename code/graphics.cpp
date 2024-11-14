@@ -1,4 +1,7 @@
 #include "graphics.h"
+
+#include <cmath>
+
 #include "window.h"
 
 namespace
@@ -118,8 +121,15 @@ void GraphicsProcessWindowsMessages()
 
 void GraphicsDoFrame()
 {
-    constexpr float color[] = { 0.588f, 0.745f, 0.827f };
-    GraphicsClearBuffer(color[0], color[1], color[2]);
+    static float i = 0;
+    const float c = std::sinf(i) / 2.0f + 0.5f;
+    //constexpr float color[] = { 0.588f, 0.745f, 0.827f };
+    GraphicsClearBuffer(c, c, 1.0f);
+    i += 0.02;
+    if (i >= 10.0f)
+    {
+        i = 10.0f; // NOTE(sbalse): stop i from increasing uncontrollably. Seems like the right thing to do?
+    }
 }
 
 bool GraphicsEndFrame()
