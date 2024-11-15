@@ -34,8 +34,7 @@ do { \
 #define SOFTASSERT(expr, msg)
 #endif // _DEBUG
 
-// NOTE(sbalse): Hard asserts are unrecoverable errors that we probably want to keep in release builds
-// as well.
+// NOTE(sbalse): Hard asserts are unrecoverable errors that we probably also want to keep in release builds.
 #define HARDASSERT(expr, msg) \
 do { \
     if (expr) \
