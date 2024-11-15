@@ -6,10 +6,10 @@
 
 // Keyboard
 constexpr u32 NUMBUTTONS = 256;
-constinit std::bitset<NUMBUTTONS> s_PrevButtonState; //! NOTE(sbalse): previous frame's states
-constinit std::bitset<NUMBUTTONS> s_ButtonState; //! NOTE(sbalse): 1 = button held down this frame.
-constinit std::bitset<NUMBUTTONS> s_ButtonDowns; //! NOTE(sbalse): 1 = button pressed this frame.
-constinit std::bitset<NUMBUTTONS> s_ButtonUps; //! NOTE(sbalse): 1 = button released this frame.
+constinit std::bitset<NUMBUTTONS> s_PrevButtonState; // NOTE(sbalse): previous frame's states
+constinit std::bitset<NUMBUTTONS> s_ButtonState; // NOTE(sbalse): 1 = button held down this frame.
+constinit std::bitset<NUMBUTTONS> s_ButtonDowns; // NOTE(sbalse): 1 = button pressed this frame.
+constinit std::bitset<NUMBUTTONS> s_ButtonUps; // NOTE(sbalse): 1 = button released this frame.
 
 // Mouse
 constexpr u8 NUMMOUSEBUTTONS = static_cast<u8>(MouseButton::COUNT);
@@ -76,10 +76,12 @@ void InputClear(bool resetPrevFrameInput)
     s_MouseButtonDowns.reset();
     s_MouseButtonUps.reset();
 
-    // NOTE(sbalse): We don't call s_MouseButtonState.reset() here because unlike keyboard messages, which get
-    // sent each frame that the key is held down, mouse events only get sent once when a mouse button is first
-    // pressed. So we need to track when the mouse button was last pressed and then released to be able to
-    // tell if it was held down.
+    /*
+    * NOTE(sbalse) : We don't call s_MouseButtonState.reset() here because unlike keyboard messages, which we
+    * get sent each frame that the key is held down, mouse events only get sent once when a mouse button is
+    * first pressed. So we need to track when the mouse button was last pressed and then released to be able
+    * to tell if it was held down.
+    */
 }
 
 void InputEndFrame()

@@ -23,8 +23,8 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     case WM_KILLFOCUS:
     {
-        //! NOTE(sbalse): Clear all input state when window loses focus so we don't have zombie key presses
-        //! hanging around.
+        // NOTE(sbalse): Clear all input state when window loses focus so we don't have zombie key presses
+        // hanging around.
         bool clearPrevFrameInput = true;
         InputClear(clearPrevFrameInput);
     } break;
@@ -42,10 +42,10 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         u8 vkCode = static_cast<u8>(wParam);
 
         // TODO(sbalse): Is the following code needed?
-        /*bool wasDown = ((lParam & (1ll << 30)) != 0); //! Was the same key down before?
-        bool isDown = ((lParam & (1ll << 31)) == 0);  //! Is the same key still down?
+        /*bool wasDown = ((lParam & (1ll << 30)) != 0); // Was the same key down before?
+        bool isDown = ((lParam & (1ll << 31)) == 0);  // Is the same key still down?
 
-        //! Early exit when the key is held down
+        // Early exit when the key is held down
         if (wasDown == isDown)
         {
             break;
@@ -55,7 +55,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         KeyboardInputUpdate(vkCode, pressed);
     } break;
 
-    case WM_MOUSEMOVE: //! The mouse has moved
+    case WM_MOUSEMOVE: // The mouse has moved
     {
         Window* window = reinterpret_cast<Window*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
@@ -119,7 +119,7 @@ bool Window::Init(int width, int height, LPCWSTR title)
     m_Height = height;
     m_Title = title;
 
-    //! NOTE(sbalse): Register window class
+    // NOTE(sbalse): Register window class
     WNDCLASSEX wc =
     {
         .cbSize = sizeof(wc),
@@ -155,7 +155,7 @@ bool Window::Init(int width, int height, LPCWSTR title)
         return false;
     }
 
-    //! NOTE(sbalse): Create window instance
+    // NOTE(sbalse): Create window instance
     m_WindowHandle = CreateWindow(
         m_ClassName,
         m_Title, // window title
@@ -210,9 +210,9 @@ void Window::ProcessMessages()
 {
     MSG msg = {};
 
-    //! NOTE(sbalse): PeekMessage() is non-blocking whereas GetMessage() will block.
-    //! We use PeekMessage() instead of GetMessage() because we want to keep running if there are no
-    //! messages.
+    // NOTE(sbalse): PeekMessage() is non-blocking whereas GetMessage() will block.
+    // We use PeekMessage() instead of GetMessage() because we want to keep running if there are no
+    // messages.
     while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
     {
         TranslateMessage(&msg);
