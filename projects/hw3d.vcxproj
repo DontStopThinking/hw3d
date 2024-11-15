@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\code\asserts.cpp" />
     <ClCompile Include="..\code\control.cpp" />
     <ClCompile Include="..\code\graphics.cpp" />
     <ClCompile Include="..\code\input.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="..\code\window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\code\asserts.h" />
     <ClInclude Include="..\code\cleanwindows.h" />
     <ClInclude Include="..\code\control.h" />
     <ClInclude Include="..\code\graphics.h" />

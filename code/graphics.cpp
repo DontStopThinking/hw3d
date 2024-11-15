@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include "asserts.h"
 #include "window.h"
 
 namespace
@@ -17,6 +18,11 @@ namespace
     {
         float color[] = { r, g, b, 1.0f };
         g_D3DDeviceContext->ClearRenderTargetView(g_D3DRenderTargetView, color);
+    }
+
+    void ValidateHRESULT(HRESULT result)
+    {
+        HARDASSERT(SUCCEEDED(result), "Operation resulted in a failed HRESULT");
     }
 }
 
@@ -62,6 +68,7 @@ bool GraphicsInit()
 
     // NOTE(sbalse): Create D3D device, front/back buffers, swap chain and rendering context.
     D3D11CreateDeviceAndSwapChain(
+    hr = D3D11CreateDeviceAndSwapChain(
         nullptr,                    // the video adapter to use
         D3D_DRIVER_TYPE_HARDWARE,   // the driver type
         nullptr,                    // handle to dll that implements a software rasterizer
@@ -75,14 +82,19 @@ bool GraphicsInit()
         nullptr,                    // feature levels supported by the device
         &g_D3DDeviceContext         // get the device context
     );
+    ValidateHRESULT(hr);
 
     // NOTE(sbalse): Get the back buffer of the swap chain
     ID3D11Resource* backBuffer = nullptr;
-    g_D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(&backBuffer));
-    g_D3DDevice->CreateRenderTargetView(
+    hr = g_D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(&backBuffer));
+    HARDASSERT(backBuffer, "backBuffer is nullptr");
+    ValidateHRESULT(hr);
+
+    hr = g_D3DDevice->CreateRenderTargetView(
         backBuffer,
         nullptr,
         &g_D3DRenderTargetView);
+    ValidateHRESULT(hr);
 
     backBuffer->Release();
 
@@ -123,7 +135,7 @@ void GraphicsDoFrame()
 {
     static float i = 0;
     const float c = std::sinf(i) / 2.0f + 0.5f;
-    //constexpr float color[] = { 0.588f, 0.745f, 0.827f };
+    //constexpr float cauliflowerBlue[] = { 0.588f, 0.745f, 0.827f };
     GraphicsClearBuffer(c, c, 1.0f);
     i += 0.02;
     if (i >= 10.0f)

@@ -6,6 +6,7 @@
     <ClCompile Include="..\code\input.cpp" />
     <ClCompile Include="..\code\graphics.cpp" />
     <ClCompile Include="..\code\control.cpp" />
+    <ClCompile Include="..\code\asserts.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\cleanwindows.h" />
@@ -14,5 +15,6 @@
     <ClInclude Include="..\code\input.h" />
     <ClInclude Include="..\code\graphics.h" />
     <ClInclude Include="..\code\control.h" />
+    <ClInclude Include="..\code\asserts.h" />
   </ItemGroup>
 </Project>
