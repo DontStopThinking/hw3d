@@ -66,13 +66,19 @@ bool GraphicsInit()
         .Flags = 0
     };
 
+    u32 d3dRuntimeLayerFlags = 0;
+#if _DEBUG
+    d3dRuntimeLayerFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif // _DEBUG
+
+    HRESULT hr = {};
+
     // NOTE(sbalse): Create D3D device, front/back buffers, swap chain and rendering context.
-    D3D11CreateDeviceAndSwapChain(
     hr = D3D11CreateDeviceAndSwapChain(
         nullptr,                    // the video adapter to use
         D3D_DRIVER_TYPE_HARDWARE,   // the driver type
         nullptr,                    // handle to dll that implements a software rasterizer
-        0,                          // runtime layers
+        d3dRuntimeLayerFlags,       // runtime layers
         nullptr,                    // feature levels
         0,                          // no. of feature levels
         D3D11_SDK_VERSION,          // sdk version,
