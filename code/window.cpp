@@ -187,7 +187,7 @@ bool Window::Init(const int width, const int height, const LPCWSTR title)
     return true;
 }
 
-void Window::Show()
+void Window::Show() const
 {
     ShowWindow(m_WindowHandle, SW_SHOW);
 }
@@ -198,10 +198,11 @@ void Window::Destroy()
     {
         UnregisterClass(m_ClassName, GetModuleHandle(nullptr));
         DestroyWindow(m_WindowHandle);
+        m_WindowHandle = nullptr;
     }
 }
 
-void Window::SetTitle(const LPCWSTR title)
+void Window::SetTitle(const LPCWSTR title) const
 {
     SetWindowText(m_WindowHandle, title);
 }

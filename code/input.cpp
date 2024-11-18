@@ -17,8 +17,8 @@ constinit std::bitset<NUMMOUSEBUTTONS> s_PrevMouseButtonState; // NOTE(sbalse): 
 constinit std::bitset<NUMMOUSEBUTTONS> s_MouseButtonState; // NOTE(sbalse): 1 = button held down across multiple frames
 constinit std::bitset<NUMMOUSEBUTTONS> s_MouseButtonDowns; // NOTE(sbalse): 1 = button pressed once this frame
 constinit std::bitset<NUMMOUSEBUTTONS> s_MouseButtonUps; // NOTE(sbalse): 1 = button released this frame.
-constinit i32 s_MouseX = 0;
-constinit i32 s_MouseY = 0;
+constinit i32 s_MouseX = 0; // NOTE(sbalse): The current mouse pointer x-coordinate. Updated constantly.
+constinit i32 s_MouseY = 0; // NOTE(sbalse): The current mouse pointer y-coordinate. Updated constantly.
 
 bool KeyboardButtonCheck(const u8 button)
 {

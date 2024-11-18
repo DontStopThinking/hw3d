@@ -19,9 +19,9 @@ public:
     Window();
 
     bool Init(const int width, const int height, const LPCWSTR title);
-    void Show();
+    void Show() const;
     void Destroy();
-    void SetTitle(const LPCWSTR title);
+    void SetTitle(const LPCWSTR title) const;
     void ProcessMessages();
     HWND GetWindowHandle() const { return m_WindowHandle; }
     int GetWidth() const { return m_Width; }
