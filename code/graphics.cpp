@@ -1,7 +1,9 @@
 #include "graphics.h"
 
 #include <cmath>
+#include <d3dcompiler.h>
 
+#include "utils.h"
 #include "asserts.h"
 #include "window.h"
 
@@ -22,9 +24,142 @@ namespace
         g_D3DDeviceContext->ClearRenderTargetView(g_D3DRenderTargetView, color);
     }
 
-    void ValidateHRESULT(HRESULT result)
+    void ValidateHRESULT(const HRESULT result)
     {
         HARDASSERT(SUCCEEDED(result), "Operation resulted in a failed HRESULT");
+    }
+
+    void DrawTestTriangle()
+    {
+        struct Vertex
+        {
+            float m_X;
+            float m_Y;
+        };
+
+        // Create vertex buffer (one 2D triangle at center of the window).
+        const Vertex vertices[] =
+        {
+            { 0.0f, 0.5f },
+            { 0.5f, -0.5f },
+            { -0.5f, -0.5f },
+        };
+
+        ID3D11Buffer* vertexBuffer = nullptr;
+        DEFER(vertexBuffer->Release());
+
+        D3D11_BUFFER_DESC bufferDesc =
+        {
+            .ByteWidth = sizeof(vertices),
+            .Usage = D3D11_USAGE_DEFAULT,
+            .BindFlags = D3D11_BIND_VERTEX_BUFFER,
+            .CPUAccessFlags = 0u,
+            .MiscFlags = 0u,
+            .StructureByteStride = sizeof(Vertex)
+        };
+
+        D3D11_SUBRESOURCE_DATA subResource =
+        {
+            .pSysMem = vertices
+        };
+
+        HRESULT hr = g_D3DDevice->CreateBuffer(&bufferDesc, &subResource, &vertexBuffer);
+        ValidateHRESULT(hr);
+
+        // Bind vertex buffer to pipeline.
+        const u32 stride = sizeof(Vertex);
+        const u32 offset = 0u;
+
+        g_D3DDeviceContext->IASetVertexBuffers(0u, 1u, &vertexBuffer, &stride, &offset);
+
+        // Create pixel shader
+        ID3D11PixelShader* pixelShader = nullptr;
+        DEFER(pixelShader->Release());
+
+        ID3DBlob* blob = nullptr;
+        DEFER(blob->Release());
+
+        hr = D3DReadFileToBlob(L"pixelshader.cso", &blob);
+        ValidateHRESULT(hr);
+
+        hr = g_D3DDevice->CreatePixelShader(
+            blob->GetBufferPointer(),
+            blob->GetBufferSize(),
+            nullptr,
+            &pixelShader
+        );
+        ValidateHRESULT(hr);
+
+        // Bind pixel shader
+        g_D3DDeviceContext->PSSetShader(pixelShader, nullptr, 0u);
+
+        // Create vertex shader
+        ID3D11VertexShader* vertexShader = nullptr;
+        DEFER(vertexShader->Release());
+
+        hr = D3DReadFileToBlob(L"vertexshader.cso", &blob);
+        ValidateHRESULT(hr);
+
+        hr = g_D3DDevice->CreateVertexShader(
+            blob->GetBufferPointer(),
+            blob->GetBufferSize(),
+            nullptr,
+            &vertexShader
+        );
+        ValidateHRESULT(hr);
+
+        // Bind vertex shader
+        g_D3DDeviceContext->VSSetShader(vertexShader, nullptr, 0u);
+
+        // Input (vertex) layout (2D positon only)
+        ID3D11InputLayout* inputLayout = nullptr;
+        DEFER(inputLayout->Release());
+
+        const D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[] =
+        {
+            {
+                .SemanticName = "Position",
+                .SemanticIndex = 0,
+                .Format = DXGI_FORMAT_R32G32_FLOAT,
+                .InputSlot = 0,
+                .AlignedByteOffset = 0,
+                .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
+                .InstanceDataStepRate = 0
+            }
+        };
+
+        hr = g_D3DDevice->CreateInputLayout(
+            inputLayoutDesc,
+            static_cast<u32>(ArraySize(inputLayoutDesc)),
+            blob->GetBufferPointer(),
+            blob->GetBufferSize(),
+            &inputLayout
+        );
+        ValidateHRESULT(hr);
+
+        // Bind vertex layout
+        g_D3DDeviceContext->IASetInputLayout(inputLayout);
+
+        // Bind render target
+        g_D3DDeviceContext->OMSetRenderTargets(1u, &g_D3DRenderTargetView, nullptr);
+
+        // Set primitive topology to triangle list (groups of 3 vertices).
+        g_D3DDeviceContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        // Configure viewport
+        D3D11_VIEWPORT viewport =
+        {
+            .TopLeftX = 0,
+            .TopLeftY = 0,
+            .Width = static_cast<FLOAT>(g_Window.GetWidth()),
+            .Height = static_cast<FLOAT>(g_Window.GetHeight()),
+            .MinDepth = 0,
+            .MaxDepth = 1
+        };
+        g_D3DDeviceContext->RSSetViewports(1u, &viewport);
+
+        constexpr u32 vertexCount = static_cast<u32>(ArraySize(vertices));
+        g_D3DDeviceContext->Draw(vertexCount, 0u);
     }
 }
 
@@ -148,8 +283,10 @@ void GraphicsDoFrame()
     i += 0.02;
     if (i >= 10.0f)
     {
-        i = 10.0f; // NOTE(sbalse): stop i from increasing uncontrollably. Seems like the right thing to do?
+        i = 0.0f; // NOTE(sbalse): stop i from increasing uncontrollably. Seems like the right thing to do?
     }
+
+    DrawTestTriangle();
 }
 
 bool GraphicsEndFrame()

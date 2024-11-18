@@ -16,5 +16,10 @@
     <ClInclude Include="..\code\graphics.h" />
     <ClInclude Include="..\code\control.h" />
     <ClInclude Include="..\code\asserts.h" />
+    <ClInclude Include="..\code\utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\code\vertexshader.hlsl" />
+    <FxCompile Include="..\code\pixelshader.hlsl" />
   </ItemGroup>
 </Project>

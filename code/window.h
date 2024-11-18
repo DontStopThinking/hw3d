@@ -24,5 +24,7 @@ public:
     void SetTitle(LPCWSTR title);
     void ProcessMessages();
     HWND GetWindowHandle() const { return m_WindowHandle; }
+    int GetWidth() const { return m_Width; }
+    int GetHeight() const { return m_Height; }
     bool IsRunning() const { return m_IsRunning; }
 };
