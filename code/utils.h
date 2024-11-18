@@ -18,13 +18,13 @@ namespace PrivateDefer
     struct Defer
     {
         F m_Func;
-        Defer(F func) : m_Func{ func } {}
+        Defer(const F func) : m_Func{ func } {}
 
         ~Defer() { m_Func(); }
     };
 
     template<typename F>
-    Defer<F> DeferHelper(F func) { return Defer(func); }
+    Defer<F> DeferHelper(const F func) { return Defer(func); }
 }
 
 // NOTE(sbalse): Defer the execution of some code till the end of a block. Useful to make sure we don't

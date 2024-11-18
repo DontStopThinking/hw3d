@@ -18,9 +18,9 @@ namespace
 
     Window g_Window;
 
-    void GraphicsClearBuffer(float r, float g, float b)
+    void GraphicsClearBuffer(const float r, const float g, const float b)
     {
-        float color[] = { r, g, b, 1.0f };
+        const float color[] = { r, g, b, 1.0f };
         g_D3DDeviceContext->ClearRenderTargetView(g_D3DRenderTargetView, color);
     }
 

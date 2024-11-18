@@ -18,10 +18,10 @@ private:
 public:
     Window();
 
-    bool Init(int width, int height, LPCWSTR title);
+    bool Init(const int width, const int height, const LPCWSTR title);
     void Show();
     void Destroy();
-    void SetTitle(LPCWSTR title);
+    void SetTitle(const LPCWSTR title);
     void ProcessMessages();
     HWND GetWindowHandle() const { return m_WindowHandle; }
     int GetWidth() const { return m_Width; }

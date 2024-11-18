@@ -113,7 +113,7 @@ Window::Window()
 {
 }
 
-bool Window::Init(int width, int height, LPCWSTR title)
+bool Window::Init(const int width, const int height, const LPCWSTR title)
 {
     m_Width = width;
     m_Height = height;
@@ -201,7 +201,7 @@ void Window::Destroy()
     }
 }
 
-void Window::SetTitle(LPCWSTR title)
+void Window::SetTitle(const LPCWSTR title)
 {
     SetWindowText(m_WindowHandle, title);
 }

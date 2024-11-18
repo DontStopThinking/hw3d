@@ -91,14 +91,14 @@ namespace
     bool EndFrame()
     {
         InputEndFrame();
-        bool isRunning = GraphicsEndFrame();
+        const bool isRunning = GraphicsEndFrame();
         return isRunning;
     }
 
     bool Run()
     {
         RunFrame();
-        bool isRunning = EndFrame(); // NOTE(sbalse): Has quit been requested at the end of a frame.
+        const bool isRunning = EndFrame(); // NOTE(sbalse): Has quit been requested at the end of a frame.
         return isRunning;
     }
 }
