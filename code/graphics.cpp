@@ -7,6 +7,8 @@
 
 namespace
 {
+    // TODO(sbalse): We're currently using asserts and crash the game in case of serious errors; And we don't
+    // use exceptions. Should we still use a ComPtr for these pointers?
     constinit ID3D11Device* g_D3DDevice = nullptr;
     constinit IDXGISwapChain* g_D3DSwapChain = nullptr;
     constinit ID3D11DeviceContext* g_D3DDeviceContext = nullptr;
