@@ -218,10 +218,10 @@ void Window::ProcessMessages()
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-    }
 
-    if (msg.message == WM_QUIT)
-    {
-        m_IsRunning = false;
+        if (msg.message == WM_QUIT)
+        {
+            m_IsRunning = false;
+        }
     }
 }
