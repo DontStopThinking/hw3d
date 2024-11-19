@@ -29,4 +29,4 @@ namespace PrivateDefer
 
 // NOTE(sbalse): Defer the execution of some code till the end of a block. Useful to make sure we don't
 // forget to free some resources.
-#define DEFER(code) auto UNIQUENAME(_defer) = PrivateDefer::DeferHelper([&]() { code; })
+#define DEFER(code) auto UNIQUENAME(defervar) = PrivateDefer::DeferHelper([&]() { code; })
