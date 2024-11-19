@@ -18,8 +18,8 @@ namespace PrivateDefer
     struct Defer
     {
         F m_Func;
-        Defer(const F func) : m_Func{ func } {}
 
+        Defer(const F func) : m_Func{ func } {}
         ~Defer() { m_Func(); }
     };
 
