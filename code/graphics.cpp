@@ -40,9 +40,17 @@ namespace
         // Create vertex buffer (one 2D triangle at center of the window).
         const Vertex vertices[] =
         {
+            // Triangle 1
             { 0.0f, 0.5f },
             { 0.5f, -0.5f },
             { -0.5f, -0.5f },
+
+            // Triangle 2
+            // NOTE(sbalse): Vertices must be ordered clockwise. If it is anti-clockwise, then Direct3D will
+            // do backface culling on the triangle.
+            { 0.5f, 1.0f },
+            { 1.0f, 0.5f },
+            { 0.5f, 0.5f },
         };
 
         ID3D11Buffer* vertexBuffer = nullptr;
