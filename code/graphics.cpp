@@ -44,7 +44,6 @@ namespace
             { 0.0f, 0.5f },
             { 0.5f, -0.5f },
             { -0.5f, -0.5f },
-            { 0.0f, 0.5f },
         };
 
         ID3D11Buffer* vertexBuffer = nullptr;
@@ -146,7 +145,7 @@ namespace
         g_D3DDeviceContext->OMSetRenderTargets(1u, &g_D3DRenderTargetView, nullptr);
 
         // Set primitive topology to triangle list (groups of 3 vertices).
-        g_D3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
+        g_D3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
         // Configure viewport
         D3D11_VIEWPORT viewport =
