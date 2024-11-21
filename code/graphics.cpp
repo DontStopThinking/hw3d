@@ -44,13 +44,7 @@ namespace
             { 0.0f, 0.5f },
             { 0.5f, -0.5f },
             { -0.5f, -0.5f },
-
-            // Triangle 2
-            // NOTE(sbalse): Vertices must be ordered clockwise. If it is anti-clockwise, then Direct3D will
-            // do backface culling on the triangle.
-            { 0.5f, 1.0f },
-            { 1.0f, 0.5f },
-            { 0.5f, 0.5f },
+            { 0.0f, 0.5f },
         };
 
         ID3D11Buffer* vertexBuffer = nullptr;
@@ -152,7 +146,7 @@ namespace
         g_D3DDeviceContext->OMSetRenderTargets(1u, &g_D3DRenderTargetView, nullptr);
 
         // Set primitive topology to triangle list (groups of 3 vertices).
-        g_D3DDeviceContext->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        g_D3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINESTRIP);
 
         // Configure viewport
         D3D11_VIEWPORT viewport =
