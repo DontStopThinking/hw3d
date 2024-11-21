@@ -44,6 +44,7 @@ namespace
         // Create vertex buffer (one 2D triangle at center of the window).
         const Vertex vertices[] =
         {
+            // NOTE(sbalse): Hexagon
             { 0.0f, 0.5f, 255, 0, 0, 0 },
             { 0.5f, -0.5f, 0, 255, 0, 0 },
             { -0.5f, -0.5f, 0, 0, 255, 0 },
@@ -59,6 +60,11 @@ namespace
             { 0.0f, -0.8f, 255, 0, 0, 0 },
             { -0.5f, -0.5f, 0, 0, 255, 0 },
             { 0.5f, -0.5f, 0, 255, 0, 0 },
+
+            // NOTE(sbalse): Triangle
+            { 0.5f, 1.0f, 255, 0, 0, 0 },
+            { 0.8f, 0.5f, 0, 255, 0, 0 },
+            { 0.2f, 0.5f, 0, 0, 255, 0 },
         };
 
         ID3D11Buffer* vertexBuffer = nullptr;
