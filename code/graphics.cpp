@@ -35,18 +35,19 @@ namespace
         {
             float m_X;
             float m_Y;
-            float m_R;
-            float m_G;
-            float m_B;
+            u8 m_R;
+            u8 m_G;
+            u8 m_B;
+            u8 m_A;
         };
 
         // Create vertex buffer (one 2D triangle at center of the window).
         const Vertex vertices[] =
         {
             // Triangle 1
-            { 0.0f, 0.5f, 1.0f, 0.0f, 0.0f },
-            { 0.5f, -0.5f, 0.0f, 1.0f, 0.0f },
-            { -0.5f, -0.5f, 0.0f, 0.0f, 1.0f },
+            { 0.0f, 0.5f, 255, 0, 0 },
+            { 0.5f, -0.5f, 0, 255, 0 },
+            { -0.5f, -0.5f, 0, 0, 255 },
         };
 
         ID3D11Buffer* vertexBuffer = nullptr;
@@ -133,7 +134,7 @@ namespace
             {
                 .SemanticName = "Color",
                 .SemanticIndex = 0,
-                .Format = DXGI_FORMAT_R32G32B32_FLOAT,
+                .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
                 .InputSlot = 0,
                 .AlignedByteOffset = 8u,
                 .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
