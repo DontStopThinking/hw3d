@@ -33,8 +33,11 @@ namespace
     {
         struct Vertex
         {
+            // NOTE(sbalse): Position
             float m_X;
             float m_Y;
+
+            // NOTE(sbalse): Color
             u8 m_R;
             u8 m_G;
             u8 m_B;
@@ -42,29 +45,20 @@ namespace
         };
 
         // Create vertex buffer (one 2D triangle at center of the window).
-        const Vertex vertices[] =
+        constexpr Vertex vertices[] =
         {
             // NOTE(sbalse): Hexagon
-            { 0.0f, 0.5f, 255, 0, 0, 0 },
-            { 0.5f, -0.5f, 0, 255, 0, 0 },
-            { -0.5f, -0.5f, 0, 0, 255, 0 },
-
-            { 0.0f, 0.5f, 255, 0, 0, 0 },
-            { -0.5f, -0.5f, 0, 0, 255, 0 },
-            { -0.3f, 0.3f, 0, 255, 0, 0 },
-
-            { 0.0f, 0.5f, 255, 0, 0, 0 },
-            { 0.3f, 0.3f, 0, 0, 255, 0 },
-            { 0.5f, -0.5f, 0, 255, 0, 0 },
-
-            { 0.0f, -0.8f, 255, 0, 0, 0 },
-            { -0.5f, -0.5f, 0, 0, 255, 0 },
-            { 0.5f, -0.5f, 0, 255, 0, 0 },
+            { 0.0f,0.5f,255,0,0,0 },
+            { 0.5f,-0.5f,0,255,0,0 },
+            { -0.5f,-0.5f,0,0,255,0 },
+            { -0.3f,0.3f,0,255,0,0 },
+            { 0.3f,0.3f,0,0,255,0 },
+            { 0.0f,-0.8f,255,0,0,0 },
 
             // NOTE(sbalse): Triangle
-            { 0.5f, 1.0f, 255, 0, 0, 0 },
+            /*{ 0.5f, 1.0f, 255, 0, 0, 0 },
             { 0.8f, 0.5f, 0, 255, 0, 0 },
-            { 0.2f, 0.5f, 0, 0, 255, 0 },
+            { 0.2f, 0.5f, 0, 0, 255, 0 },*/
         };
 
         ID3D11Buffer* vertexBuffer = nullptr;
@@ -80,12 +74,12 @@ namespace
             .StructureByteStride = sizeof(Vertex)
         };
 
-        D3D11_SUBRESOURCE_DATA subResource =
+        D3D11_SUBRESOURCE_DATA subResourceVertices =
         {
             .pSysMem = vertices
         };
 
-        HRESULT hr = g_D3DDevice->CreateBuffer(&bufferDesc, &subResource, &vertexBuffer);
+        HRESULT hr = g_D3DDevice->CreateBuffer(&bufferDesc, &subResourceVertices, &vertexBuffer);
         ValidateHRESULT(hr);
 
         // Bind vertex buffer to pipeline.
@@ -93,6 +87,38 @@ namespace
         const u32 offset = 0u;
 
         g_D3DDeviceContext->IASetVertexBuffers(0u, 1u, &vertexBuffer, &stride, &offset);
+
+        // Create index buffer
+        constexpr u16 indices[] =
+        {
+            0,1,2,
+            0,2,3,
+            0,4,1,
+            2,1,5,
+        };
+
+        ID3D11Buffer* indexBuffer = nullptr;
+        DEFER(indexBuffer->Release());
+
+        D3D11_BUFFER_DESC indexBufferDesc =
+        {
+            .ByteWidth = sizeof(indices),
+            .Usage = D3D11_USAGE_DEFAULT,
+            .BindFlags = D3D11_BIND_INDEX_BUFFER,
+            .CPUAccessFlags = 0u,
+            .MiscFlags = 0u,
+            .StructureByteStride = sizeof(u16),
+        };
+
+        D3D11_SUBRESOURCE_DATA subResourceIndices =
+        {
+            .pSysMem = indices,
+        };
+
+        hr = g_D3DDevice->CreateBuffer(&indexBufferDesc, &subResourceIndices, &indexBuffer);
+        ValidateHRESULT(hr);
+
+        g_D3DDeviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R16_UINT, 0u);
 
         // Create pixel shader
         ID3D11PixelShader* pixelShader = nullptr;
@@ -175,7 +201,7 @@ namespace
         g_D3DDeviceContext->OMSetRenderTargets(1u, &g_D3DRenderTargetView, nullptr);
 
         // Set primitive topology to triangle list (groups of 3 vertices).
-        g_D3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+        g_D3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
         // Configure viewport
         D3D11_VIEWPORT viewport =
@@ -190,7 +216,8 @@ namespace
         g_D3DDeviceContext->RSSetViewports(1u, &viewport);
 
         constexpr u32 vertexCount = static_cast<u32>(ArraySize(vertices));
-        g_D3DDeviceContext->Draw(vertexCount, 0u);
+        constexpr u32 indexCount = static_cast<u32>(ArraySize(indices));
+        g_D3DDeviceContext->DrawIndexed(indexCount, 0u, 0);
     }
 }
 
@@ -231,7 +258,7 @@ bool GraphicsInit()
         .OutputWindow = g_Window.GetWindowHandle(),
         .Windowed = true,
         .SwapEffect = DXGI_SWAP_EFFECT_DISCARD,
-        .Flags = 0
+        .Flags = 0,
     };
 
     u32 d3dRuntimeLayerFlags = 0;
