@@ -29,7 +29,7 @@ namespace
         HARDASSERT(SUCCEEDED(result), "Operation resulted in a failed HRESULT");
     }
 
-    void DrawTestTriangle()
+    void DrawTestTriangle(float angle)
     {
         struct Vertex
         {
@@ -118,7 +118,55 @@ namespace
         hr = g_D3DDevice->CreateBuffer(&indexBufferDesc, &subResourceIndices, &indexBuffer);
         ValidateHRESULT(hr);
 
+        // Bind index buffer
         g_D3DDeviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R16_UINT, 0u);
+
+        // Create constant buffer for transformation matrix
+        struct ConstantBuffer
+        {
+            struct
+            {
+                float m_Element[4][4]; // 4x4 matrix
+            } m_Transformation;
+        };
+
+        const ConstantBuffer constantBufferData =
+        {
+            .m_Transformation =
+            {
+                .m_Element =
+                {
+                    (3.0f / 4.0f) * std::cos(angle),  std::sin(angle), 0.0f, 0.0f,
+                    (3.0f / 4.0f) * -std::sin(angle), std::cos(angle), 0.0f, 0.0f,
+                    0.0f,                             0.0f,            1.0f, 0.0f,
+                    0.0f,                             0.0f,            0.0f, 1.0f
+                }
+            }
+        };
+
+        ID3D11Buffer* constantBuffer = nullptr;
+        DEFER(constantBuffer->Release());
+
+        D3D11_BUFFER_DESC constantBufferDesc =
+        {
+            .ByteWidth = sizeof(constantBufferData),
+            .Usage = D3D11_USAGE_DYNAMIC,
+            .BindFlags = D3D11_BIND_CONSTANT_BUFFER,
+            .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
+            .MiscFlags = 0u,
+            .StructureByteStride = 0u,
+        };
+
+        D3D11_SUBRESOURCE_DATA constantBufferSubresourceData =
+        {
+            .pSysMem = &constantBufferData
+        };
+
+        hr = g_D3DDevice->CreateBuffer(&constantBufferDesc, &constantBufferSubresourceData, &constantBuffer);
+        ValidateHRESULT(hr);
+
+        // Bind constant buffer to vertex shader
+        g_D3DDeviceContext->VSSetConstantBuffers(0u, 1u, &constantBuffer);
 
         // Create pixel shader
         ID3D11PixelShader* pixelShader = nullptr;
@@ -344,7 +392,7 @@ void GraphicsDoFrame()
         i = 0.0f; // NOTE(sbalse): stop i from increasing uncontrollably. Seems like the right thing to do?
     }
 
-    DrawTestTriangle();
+    DrawTestTriangle(i);
 }
 
 bool GraphicsEndFrame()
