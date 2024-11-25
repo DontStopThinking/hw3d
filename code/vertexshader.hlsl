@@ -7,9 +7,7 @@ struct VSOut
 // NOTE(sbalse): The constant buffer
 cbuffer CBuf
 {
-    // NOTE(sbalse): Chilli says multiplying a row major matrix on the GPU is slightly slower than a column
-    // major matrix. In the future, we will transpose it first on the CPU side.
-    row_major matrix transform;
+    matrix transform;
 };
 
 VSOut main(float2 pos : POSITION, float3 color : COLOR)

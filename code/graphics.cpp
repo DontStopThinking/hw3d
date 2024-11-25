@@ -2,10 +2,14 @@
 
 #include <cmath>
 #include <d3dcompiler.h>
+#include <DirectXMath.h>
 
 #include "asserts.h"
+#include "input.h"
 #include "window.h"
 #include "utils.h"
+
+namespace dx = DirectX;
 
 namespace
 {
@@ -29,7 +33,7 @@ namespace
         HARDASSERT(SUCCEEDED(result), "Operation resulted in a failed HRESULT");
     }
 
-    void DrawTestTriangle(float angle)
+    void DrawTestTriangle(float angle, float triangleX, float triangleY)
     {
         struct Vertex
         {
@@ -124,24 +128,15 @@ namespace
         // Create constant buffer for transformation matrix
         struct ConstantBuffer
         {
-            struct
-            {
-                float m_Element[4][4]; // 4x4 matrix
-            } m_Transformation;
+            dx::XMMATRIX m_Transform;
         };
 
         const ConstantBuffer constantBufferData =
         {
-            .m_Transformation =
-            {
-                .m_Element =
-                {
-                    (3.0f / 4.0f) * std::cos(angle),  std::sin(angle), 0.0f, 0.0f,
-                    (3.0f / 4.0f) * -std::sin(angle), std::cos(angle), 0.0f, 0.0f,
-                    0.0f,                             0.0f,            1.0f, 0.0f,
-                    0.0f,                             0.0f,            0.0f, 1.0f
-                }
-            }
+            .m_Transform =  dx::XMMatrixTranspose(
+                dx::XMMatrixRotationZ(angle)
+                * dx::XMMatrixScaling(3.0f / 4.0f, 1.0f, 1.0f)
+                * dx::XMMatrixTranslation(triangleX, triangleY, 0.0f)),
         };
 
         ID3D11Buffer* constantBuffer = nullptr;
@@ -392,7 +387,10 @@ void GraphicsDoFrame()
         i = 0.0f; // NOTE(sbalse): stop i from increasing uncontrollably. Seems like the right thing to do?
     }
 
-    DrawTestTriangle(i);
+    const float mouseX = (static_cast<float>(MouseX()) / (g_Window.GetWidth() / 2.0f)) - 1.0f;
+    const float mouseY = ((static_cast<float>(MouseY()) / (g_Window.GetHeight() / 2.0f)) - 1.0f) * -1.0f;
+
+    DrawTestTriangle(i, mouseX, mouseY);
 }
 
 bool GraphicsEndFrame()
