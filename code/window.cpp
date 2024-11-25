@@ -1,7 +1,7 @@
 #include "window.h"
 
-#include "types.h"
 #include "input.h"
+#include "types.h"
 
 LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {

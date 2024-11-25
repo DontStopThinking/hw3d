@@ -1,5 +1,7 @@
 #pragma once
+
 #include "cleanwindows.h"
+
 #include <d3d11.h>
 
 bool GraphicsInit();

@@ -3,9 +3,9 @@
 #include <cmath>
 #include <d3dcompiler.h>
 
-#include "utils.h"
 #include "asserts.h"
 #include "window.h"
+#include "utils.h"
 
 namespace
 {
@@ -48,12 +48,12 @@ namespace
         constexpr Vertex vertices[] =
         {
             // NOTE(sbalse): Hexagon
-            { 0.0f,0.5f,255,0,0,0 },
-            { 0.5f,-0.5f,0,255,0,0 },
-            { -0.5f,-0.5f,0,0,255,0 },
-            { -0.3f,0.3f,0,255,0,0 },
-            { 0.3f,0.3f,0,0,255,0 },
-            { 0.0f,-0.8f,255,0,0,0 },
+            { 0.0f, 0.5f, 255, 0, 0, 0 },
+            { 0.5f, -0.5f, 0, 255, 0, 0 },
+            { -0.5f, -0.5f, 0, 0, 255, 0 },
+            { -0.3f, 0.3f, 0, 255, 0, 0 },
+            { 0.3f, 0.3f, 0, 0, 255, 0 },
+            { 0.0f, -0.8f, 255, 0, 0, 0 },
 
             // NOTE(sbalse): Triangle
             /*{ 0.5f, 1.0f, 255, 0, 0, 0 },

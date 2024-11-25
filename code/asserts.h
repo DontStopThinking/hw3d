@@ -1,6 +1,7 @@
 #pragma once
 
 #include "cleanwindows.h"
+
 #include <intrin.h>
 
 #include "types.h"
