@@ -6,6 +6,7 @@
 
 #include "asserts.h"
 #include "input.h"
+#include "mathutils.h"
 #include "window.h"
 #include "utils.h"
 
@@ -390,14 +391,12 @@ void GraphicsProcessWindowsMessages()
 void GraphicsDoFrame()
 {
     static float i = 0;
-    const float c = std::sinf(i) / 2.0f + 0.5f;
+    const float color = std::sinf(i) / 2.0f + 0.5f;
     //constexpr float cauliflowerBlue[] = { 0.588f, 0.745f, 0.827f };
-    GraphicsClearBuffer(c, c, 1.0f);
-    i += 0.02;
-    if (i >= 10.0f)
-    {
-        i = 0.0f; // NOTE(sbalse): stop i from increasing uncontrollably. Seems like the right thing to do?
-    }
+
+    GraphicsClearBuffer(color, color, 1.0f);
+
+    i = PingPong(i, 0.0f, 10.0f, 0.02f); // NOTE(sbalse): Oscillate value between min and max.
 
     const float mouseX = (static_cast<float>(MouseX()) / (g_Window.GetWidth() / 2.0f)) - 1.0f;
     const float mouseY = ((static_cast<float>(MouseY()) / (g_Window.GetHeight() / 2.0f)) - 1.0f) * -1.0f;

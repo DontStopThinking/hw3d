@@ -152,6 +152,7 @@
     <ClCompile Include="..\code\graphics.cpp" />
     <ClCompile Include="..\code\input.cpp" />
     <ClCompile Include="..\code\main.cpp" />
+    <ClCompile Include="..\code\mathutils.cpp" />
     <ClCompile Include="..\code\window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -160,6 +161,7 @@
     <ClInclude Include="..\code\control.h" />
     <ClInclude Include="..\code\graphics.h" />
     <ClInclude Include="..\code\input.h" />
+    <ClInclude Include="..\code\mathutils.h" />
     <ClInclude Include="..\code\types.h" />
     <ClInclude Include="..\code\utils.h" />
     <ClInclude Include="..\code\window.h" />

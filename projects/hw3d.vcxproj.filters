@@ -7,6 +7,7 @@
     <ClCompile Include="..\code\graphics.cpp" />
     <ClCompile Include="..\code\control.cpp" />
     <ClCompile Include="..\code\asserts.cpp" />
+    <ClCompile Include="..\code\mathutils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\cleanwindows.h" />
@@ -17,6 +18,7 @@
     <ClInclude Include="..\code\control.h" />
     <ClInclude Include="..\code\asserts.h" />
     <ClInclude Include="..\code\utils.h" />
+    <ClInclude Include="..\code\mathutils.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\code\vertexshader.hlsl" />
