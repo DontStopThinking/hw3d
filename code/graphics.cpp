@@ -38,26 +38,35 @@ namespace
         struct Vertex
         {
             // NOTE(sbalse): Position
-            float m_X;
-            float m_Y;
+            struct
+            {
+                float m_X;
+                float m_Y;
+                float m_Z;
+            } m_Pos;
 
             // NOTE(sbalse): Color
-            u8 m_R;
-            u8 m_G;
-            u8 m_B;
-            u8 m_A;
+            struct
+            {
+                u8 m_R;
+                u8 m_G;
+                u8 m_B;
+                u8 m_A;
+            } m_Color;
         };
 
         // Create vertex buffer (one 2D triangle at center of the window).
         constexpr Vertex vertices[] =
         {
-            // NOTE(sbalse): Hexagon
-            { 0.0f, 0.5f, 255, 0, 0, 0 },
-            { 0.5f, -0.5f, 0, 255, 0, 0 },
-            { -0.5f, -0.5f, 0, 0, 255, 0 },
-            { -0.3f, 0.3f, 0, 255, 0, 0 },
-            { 0.3f, 0.3f, 0, 0, 255, 0 },
-            { 0.0f, -0.8f, 255, 0, 0, 0 },
+            // NOTE(sbalse): Cube
+            { .m_Pos = { -1.0f, -1.0f, -1.0f }, .m_Color = { 255, 0, 0 } },
+            { .m_Pos = { 1.0f, -1.0f, -1.0f },  .m_Color = { 0, 255, 0 } },
+            { .m_Pos = { -1.0f, 1.0f, -1.0f },  .m_Color = { 0, 0, 255 } },
+            { .m_Pos = { 1.0f, 1.0f, -1.0f },   .m_Color = { 255, 255, 0 } },
+            { .m_Pos = { -1.0f, -1.0f, 1.0f },  .m_Color = { 255, 0, 255 } },
+            { .m_Pos = { 1.0f, -1.0f, 1.0f },   .m_Color = { 0, 255, 255 } },
+            { .m_Pos = { -1.0f, 1.0f, 1.0f },   .m_Color = { 0, 0, 0 } },
+            { .m_Pos = { 1.0f, 1.0f, 1.0f },    .m_Color = { 255, 255, 255 } },
 
             // NOTE(sbalse): Triangle
             /*{ 0.5f, 1.0f, 255, 0, 0, 0 },
@@ -95,10 +104,12 @@ namespace
         // Create index buffer
         constexpr u16 indices[] =
         {
-            0,1,2,
-            0,2,3,
-            0,4,1,
-            2,1,5,
+            0, 2, 1, 2, 3, 1,
+            1, 3, 5, 3, 7, 5,
+            2, 6, 3, 3, 6, 7,
+            4, 5, 7, 4, 7, 6,
+            0, 4, 2, 2, 4, 6,
+            0, 1, 4, 1, 5, 4,
         };
 
         ID3D11Buffer* indexBuffer = nullptr;
@@ -134,9 +145,10 @@ namespace
         const ConstantBuffer constantBufferData =
         {
             .m_Transform =  dx::XMMatrixTranspose(
-                dx::XMMatrixRotationZ(angle)
-                * dx::XMMatrixScaling(3.0f / 4.0f, 1.0f, 1.0f)
-                * dx::XMMatrixTranslation(triangleX, triangleY, 0.0f)),
+                  dx::XMMatrixRotationZ(angle)
+                * dx::XMMatrixRotationX(angle)
+                * dx::XMMatrixTranslation(triangleX, triangleY, 4.0f)
+                * dx::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 10.0f)),
         };
 
         ID3D11Buffer* constantBuffer = nullptr;
@@ -211,7 +223,7 @@ namespace
             {
                 .SemanticName = "Position",
                 .SemanticIndex = 0,
-                .Format = DXGI_FORMAT_R32G32_FLOAT,
+                .Format = DXGI_FORMAT_R32G32B32_FLOAT,
                 .InputSlot = 0,
                 .AlignedByteOffset = 0,
                 .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
@@ -222,7 +234,7 @@ namespace
                 .SemanticIndex = 0,
                 .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
                 .InputSlot = 0,
-                .AlignedByteOffset = 8u,
+                .AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT,
                 .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
                 .InstanceDataStepRate = 0
             },
