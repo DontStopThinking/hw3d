@@ -45,29 +45,20 @@ namespace
                 float m_Y;
                 float m_Z;
             } m_Pos;
-
-            // NOTE(sbalse): Color
-            struct
-            {
-                u8 m_R;
-                u8 m_G;
-                u8 m_B;
-                u8 m_A;
-            } m_Color;
         };
 
         // Create vertex buffer (one 2D triangle at center of the window).
         constexpr Vertex vertices[] =
         {
             // NOTE(sbalse): Cube
-            { .m_Pos = { -1.0f, -1.0f, -1.0f }, .m_Color = { 255, 0, 0 } },
-            { .m_Pos = { 1.0f, -1.0f, -1.0f },  .m_Color = { 0, 255, 0 } },
-            { .m_Pos = { -1.0f, 1.0f, -1.0f },  .m_Color = { 0, 0, 255 } },
-            { .m_Pos = { 1.0f, 1.0f, -1.0f },   .m_Color = { 255, 255, 0 } },
-            { .m_Pos = { -1.0f, -1.0f, 1.0f },  .m_Color = { 255, 0, 255 } },
-            { .m_Pos = { 1.0f, -1.0f, 1.0f },   .m_Color = { 0, 255, 255 } },
-            { .m_Pos = { -1.0f, 1.0f, 1.0f },   .m_Color = { 0, 0, 0 } },
-            { .m_Pos = { 1.0f, 1.0f, 1.0f },    .m_Color = { 255, 255, 255 } },
+            { .m_Pos = { -1.0f, -1.0f, -1.0f } },
+            { .m_Pos = { 1.0f, -1.0f, -1.0f } },
+            { .m_Pos = { -1.0f, 1.0f, -1.0f } },
+            { .m_Pos = { 1.0f, 1.0f, -1.0f } },
+            { .m_Pos = { -1.0f, -1.0f, 1.0f } },
+            { .m_Pos = { 1.0f, -1.0f, 1.0f } },
+            { .m_Pos = { -1.0f, 1.0f, 1.0f } },
+            { .m_Pos = { 1.0f, 1.0f, 1.0f } },
 
             // NOTE(sbalse): Triangle
             /*{ 0.5f, 1.0f, 255, 0, 0, 0 },
@@ -176,6 +167,58 @@ namespace
         // Bind constant buffer to vertex shader
         g_D3DDeviceContext->VSSetConstantBuffers(0u, 1u, &constantBuffer);
 
+        // Create constant buffer 2 for cube face colors
+        struct ConstantBuffer2
+        {
+            struct
+            {
+                float m_R;
+                float m_G;
+                float m_B;
+                float m_A;
+            } m_FaceColors[6];
+        };
+
+        ConstantBuffer2 constantBufferData2 =
+        {
+            .m_FaceColors =
+            {
+                { .m_R = 1.0f, .m_G = 0.0f, .m_B = 1.0f },
+                { .m_R = 1.0f, .m_G = 0.0f, .m_B = 0.0f },
+                { .m_R = 0.0f, .m_G = 1.0f, .m_B = 0.0f },
+                { .m_R = 0.0f, .m_G = 0.0f, .m_B = 1.0f },
+                { .m_R = 1.0f, .m_G = 1.0f, .m_B = 0.0f },
+                { .m_R = 0.0f, .m_G = 1.0f, .m_B = 1.0f },
+            }
+        };
+
+        ID3D11Buffer* constantBuffer2 = nullptr;
+        DEFER(constantBuffer2->Release());
+
+        D3D11_BUFFER_DESC constantBufferDesc2 =
+        {
+            .ByteWidth = sizeof(constantBufferData2),
+            .Usage = D3D11_USAGE_DEFAULT,
+            .BindFlags = D3D11_BIND_CONSTANT_BUFFER,
+            .CPUAccessFlags = 0u,
+            .MiscFlags = 0u,
+            .StructureByteStride = 0u,
+        };
+
+        D3D11_SUBRESOURCE_DATA constantBufferSubresourceData2 =
+        {
+            .pSysMem = &constantBufferData2
+        };
+
+        hr = g_D3DDevice->CreateBuffer(
+            &constantBufferDesc2,
+            &constantBufferSubresourceData2,
+            &constantBuffer2);
+        ValidateHRESULT(hr);
+
+        // Bind constant buffer 2 to pixel shader
+        g_D3DDeviceContext->PSSetConstantBuffers(0u, 1u, &constantBuffer2);
+
         // Create pixel shader
         ID3D11PixelShader* pixelShader = nullptr;
         DEFER(pixelShader->Release());
@@ -227,15 +270,6 @@ namespace
                 .Format = DXGI_FORMAT_R32G32B32_FLOAT,
                 .InputSlot = 0,
                 .AlignedByteOffset = 0,
-                .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
-                .InstanceDataStepRate = 0
-            },
-            {
-                .SemanticName = "Color",
-                .SemanticIndex = 0,
-                .Format = DXGI_FORMAT_R8G8B8A8_UNORM,
-                .InputSlot = 0,
-                .AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT,
                 .InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA,
                 .InstanceDataStepRate = 0
             },
