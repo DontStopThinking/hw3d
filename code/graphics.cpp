@@ -20,6 +20,7 @@ namespace
     constinit IDXGISwapChain* g_D3DSwapChain = nullptr;
     constinit ID3D11DeviceContext* g_D3DDeviceContext = nullptr;
     constinit ID3D11RenderTargetView* g_D3DRenderTargetView = nullptr;
+    constinit ID3D11DepthStencilView* g_D3DDepthStencilView = nullptr;
 
     Window g_Window;
 
@@ -27,6 +28,7 @@ namespace
     {
         const float color[] = { r, g, b, 1.0f };
         g_D3DDeviceContext->ClearRenderTargetView(g_D3DRenderTargetView, color);
+        g_D3DDeviceContext->ClearDepthStencilView(g_D3DDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0u);
     }
 
     void ValidateHRESULT(const HRESULT result)
@@ -34,7 +36,7 @@ namespace
         HARDASSERT(SUCCEEDED(result), "Operation resulted in a failed HRESULT");
     }
 
-    void DrawTestTriangle(float angle, float triangleX, float triangleY)
+    void DrawTestTriangle(float angle, float triangleX, float triangleZ)
     {
         struct Vertex
         {
@@ -139,7 +141,7 @@ namespace
             .m_Transform =  dx::XMMatrixTranspose(
                   dx::XMMatrixRotationZ(angle)
                 * dx::XMMatrixRotationX(angle)
-                * dx::XMMatrixTranslation(triangleX, triangleY, 4.0f)
+                * dx::XMMatrixTranslation(triangleX, 0.0f, triangleZ + 4.0f)
                 * dx::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 10.0f)),
         };
 
@@ -287,9 +289,6 @@ namespace
         // Bind vertex layout
         g_D3DDeviceContext->IASetInputLayout(inputLayout);
 
-        // Bind render target
-        g_D3DDeviceContext->OMSetRenderTargets(1u, &g_D3DRenderTargetView, nullptr);
-
         // Set primitive topology to triangle list (groups of 3 vertices).
         g_D3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -305,7 +304,6 @@ namespace
         };
         g_D3DDeviceContext->RSSetViewports(1u, &viewport);
 
-        constexpr u32 vertexCount = static_cast<u32>(ArraySize(vertices));
         constexpr u32 indexCount = static_cast<u32>(ArraySize(indices));
         g_D3DDeviceContext->DrawIndexed(indexCount, 0u, 0);
     }
@@ -377,6 +375,8 @@ bool GraphicsInit()
 
     // NOTE(sbalse): Get the back buffer of the swap chain
     ID3D11Resource* backBuffer = nullptr;
+    DEFER(backBuffer->Release());
+
     hr = g_D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(&backBuffer));
     HARDASSERT(backBuffer, "backBuffer is nullptr");
     ValidateHRESULT(hr);
@@ -387,7 +387,63 @@ bool GraphicsInit()
         &g_D3DRenderTargetView);
     ValidateHRESULT(hr);
 
-    backBuffer->Release();
+    // NOTE(sbalse): Create depth stencil state.
+    D3D11_DEPTH_STENCIL_DESC depthStencilDesc =
+    {
+        .DepthEnable = true,
+        .DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL,
+        .DepthFunc = D3D11_COMPARISON_LESS
+    };
+
+    ID3D11DepthStencilState* depthStencilState = nullptr;
+    DEFER(depthStencilState->Release());
+
+    hr = g_D3DDevice->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
+    ValidateHRESULT(hr);
+
+    // NOTE(sbalse): Bind depth state.
+    g_D3DDeviceContext->OMSetDepthStencilState(depthStencilState, 1u);
+
+    // NOTE(sbalse): Create depth stencil texture.
+    ID3D11Texture2D* depthStencil = nullptr;
+    DEFER(depthStencil->Release());
+
+    D3D11_TEXTURE2D_DESC depthDesc =
+    {
+        .Width = static_cast<u32>(g_Window.GetWidth()),
+        .Height = static_cast<u32>(g_Window.GetHeight()),
+        .MipLevels = 1u,
+        .ArraySize = 1u,
+        .Format = DXGI_FORMAT_D32_FLOAT,
+        .SampleDesc =
+        {
+            .Count = 1u,
+            .Quality = 0u,
+        },
+        .Usage = D3D11_USAGE_DEFAULT,
+        .BindFlags = D3D11_BIND_DEPTH_STENCIL,
+    };
+
+    hr = g_D3DDevice->CreateTexture2D(&depthDesc, nullptr, &depthStencil);
+    HARDASSERT(depthStencil, "Failed to create a depth stencil texture");
+    ValidateHRESULT(hr);
+
+    // NOTE(sbalse): Create view of depth stencil texture.
+    D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc =
+    {
+        .Format = DXGI_FORMAT_D32_FLOAT,
+        .ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D,
+        .Texture2D =
+        {
+            .MipSlice = 0u,
+        },
+    };
+
+    hr = g_D3DDevice->CreateDepthStencilView(depthStencil, &depthStencilViewDesc, &g_D3DDepthStencilView);
+    ValidateHRESULT(hr);
+
+    // NOTE(sbalse): Bind depth stencil view to OM.
+    g_D3DDeviceContext->OMSetRenderTargets(1u, &g_D3DRenderTargetView, g_D3DDepthStencilView);
 
     g_Window.Show();
 
@@ -396,6 +452,11 @@ bool GraphicsInit()
 
 void GraphicsDestroy()
 {
+    if (g_D3DDepthStencilView)
+    {
+        g_D3DDepthStencilView->Release();
+    }
+
     if (g_D3DRenderTargetView)
     {
         g_D3DRenderTargetView->Release();
@@ -435,6 +496,7 @@ void GraphicsDoFrame()
     const float mouseX = (static_cast<float>(MouseX()) / (g_Window.GetWidth() / 2.0f)) - 1.0f;
     const float mouseY = ((static_cast<float>(MouseY()) / (g_Window.GetHeight() / 2.0f)) - 1.0f) * -1.0f;
 
+    DrawTestTriangle(-i, 0.0f, 0.0f);
     DrawTestTriangle(i, mouseX, mouseY);
 }
 
