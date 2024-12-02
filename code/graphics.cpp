@@ -221,12 +221,12 @@ namespace
         // Bind constant buffer 2 to pixel shader
         g_D3DDeviceContext->PSSetConstantBuffers(0u, 1u, &constantBuffer2);
 
+        ID3DBlob* blob = nullptr;
+        DEFER(blob->Release());
+
         // Create pixel shader
         ID3D11PixelShader* pixelShader = nullptr;
         DEFER(pixelShader->Release());
-
-        ID3DBlob* blob = nullptr;
-        DEFER(blob->Release());
 
         hr = D3DReadFileToBlob(L"pixelshader.cso", &blob);
         ValidateHRESULT(hr);
