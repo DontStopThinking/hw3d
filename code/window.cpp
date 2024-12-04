@@ -52,7 +52,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }*/
 
         bool pressed = (msg == WM_KEYDOWN);
-        KeyboardInputUpdate(vkCode, pressed);
+        InputKeyboardUpdate(vkCode, pressed);
     } break;
 
     case WM_MOUSEMOVE: // The mouse has moved
@@ -64,7 +64,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // If mouse is inside the client region.
         if (pt.x >= 0 && pt.x < window->m_Width && pt.y >= 0 && pt.y < window->m_Height)
         {
-            SetMousePosition(pt.x, pt.y);
+            InputSetMousePosition(pt.x, pt.y);
         }
     } break;
 
@@ -91,7 +91,7 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         bool isDown = (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN);
 
-        MouseInputUpdate(button, isDown);
+        InputMouseUpdate(button, isDown);
     } break;
 
     default:

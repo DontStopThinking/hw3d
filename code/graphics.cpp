@@ -485,8 +485,8 @@ void GraphicsDoFrame()
 
     i = PingPong(i, 0.0f, 10.0f, 0.02f); // NOTE(sbalse): Oscillate value between min and max.
 
-    const float mouseX = (static_cast<float>(MouseX()) / (g_Window.GetWidth() / 2.0f)) - 1.0f;
-    const float mouseY = ((static_cast<float>(MouseY()) / (g_Window.GetHeight() / 2.0f)) - 1.0f) * -1.0f;
+    const float mouseX = (static_cast<float>(InputMouseX()) / (g_Window.GetWidth() / 2.0f)) - 1.0f;
+    const float mouseY = ((static_cast<float>(InputMouseY()) / (g_Window.GetHeight() / 2.0f)) - 1.0f) * -1.0f;
 
     DrawTestTriangle(-i, 0.0f, 0.0f);
     DrawTestTriangle(i, mouseX, mouseY);

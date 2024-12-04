@@ -20,44 +20,44 @@ constinit std::bitset<NUMMOUSEBUTTONS> s_MouseButtonUps; // NOTE(sbalse): 1 = bu
 constinit i32 s_MouseX = 0; // NOTE(sbalse): The current mouse pointer x-coordinate. Updated constantly.
 constinit i32 s_MouseY = 0; // NOTE(sbalse): The current mouse pointer y-coordinate. Updated constantly.
 
-bool KeyboardButtonCheck(const u8 button)
+bool InputKeyboardButtonCheck(const u8 button)
 {
     return s_ButtonState[button];
 }
 
-bool KeyboardButtonPressed(const u8 button)
+bool InputKeyboardButtonPressed(const u8 button)
 {
     return s_ButtonDowns[button] && !s_PrevButtonState[button];
 }
 
-bool KeyboardButtonReleased(const u8 button)
+bool InputKeyboardButtonReleased(const u8 button)
 {
     return s_ButtonUps[button];
 }
 
-int MouseX()
+int InputMouseX()
 {
     return s_MouseX;
 }
 
-int MouseY()
+int InputMouseY()
 {
     return s_MouseY;
 }
 
-bool MouseButtonCheck(const MouseButton button)
+bool InputMouseButtonCheck(const MouseButton button)
 {
     const u8 buttonInt = static_cast<u8>(button);
     return s_MouseButtonState[buttonInt];
 }
 
-bool MouseButtonPressed(const MouseButton button)
+bool InputMouseButtonPressed(const MouseButton button)
 {
     const u8 buttonInt = static_cast<u8>(button);
     return s_MouseButtonDowns[buttonInt] && !s_PrevMouseButtonState[buttonInt];
 }
 
-bool MouseButtonReleased(const MouseButton button)
+bool InputMouseButtonReleased(const MouseButton button)
 {
     const u8 buttonInt = static_cast<u8>(button);
     return s_MouseButtonUps[buttonInt];
@@ -92,7 +92,7 @@ void InputEndFrame()
     InputClear(resetPrevFrameInput);
 }
 
-void KeyboardInputUpdate(const u8 button, const bool pressed)
+void InputKeyboardUpdate(const u8 button, const bool pressed)
 {
     s_ButtonState[button] = pressed;
     if (pressed)
@@ -105,13 +105,13 @@ void KeyboardInputUpdate(const u8 button, const bool pressed)
     }
 }
 
-void SetMousePosition(const i32 x, const i32 y)
+void InputSetMousePosition(const i32 x, const i32 y)
 {
     s_MouseX = x;
     s_MouseY = y;
 }
 
-void MouseInputUpdate(const MouseButton button, const bool pressed)
+void InputMouseUpdate(const MouseButton button, const bool pressed)
 {
     const u8 buttonInt = static_cast<u8>(button);
     s_MouseButtonState[buttonInt] = pressed;

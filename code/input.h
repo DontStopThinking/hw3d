@@ -1,9 +1,9 @@
 #pragma once
 #include "types.h"
 
-bool KeyboardButtonCheck(u8 button);
-bool KeyboardButtonPressed(u8 button);
-bool KeyboardButtonReleased(u8 button);
+bool InputKeyboardButtonCheck(u8 button);
+bool InputKeyboardButtonPressed(u8 button);
+bool InputKeyboardButtonReleased(u8 button);
 
 enum class MouseButton
 {
@@ -12,14 +12,14 @@ enum class MouseButton
     MBUTTON,
     COUNT
 };
-int MouseX();
-int MouseY();
-bool MouseButtonCheck(MouseButton button);
-bool MouseButtonPressed(MouseButton button);
-bool MouseButtonReleased(MouseButton button);
+int InputMouseX();
+int InputMouseY();
+bool InputMouseButtonCheck(MouseButton button);
+bool InputMouseButtonPressed(MouseButton button);
+bool InputMouseButtonReleased(MouseButton button);
 
 void InputClear(bool resetPrevFrameInput);
 void InputEndFrame();
-void KeyboardInputUpdate(u8 button, bool pressed);
-void SetMousePosition(i32 x, i32 y);
-void MouseInputUpdate(MouseButton button, bool pressed);
+void InputKeyboardUpdate(u8 button, bool pressed);
+void InputSetMousePosition(i32 x, i32 y);
+void InputMouseUpdate(MouseButton button, bool pressed);
