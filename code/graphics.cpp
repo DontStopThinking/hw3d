@@ -323,30 +323,30 @@ bool GraphicsInit()
 
     DXGI_SWAP_CHAIN_DESC swapChainDescription =
     {
-        .BufferDesc =
+        .BufferDesc =   // Details of the buffer that will hold the window's contents.
         {
-            .Width = 0,
-            .Height = 0,
-            .RefreshRate =
+            .Width = 0, // Width of the buffer in pixels.
+            .Height = 0, // Height of the buffer in pixels.
+            .RefreshRate =  // Refresh rate of the contents of the window.
             {
                 .Numerator = 0,
                 .Denominator = 0
             },
-            .Format = DXGI_FORMAT_B8G8R8A8_UNORM,
-            .ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
-            .Scaling = DXGI_MODE_SCALING_UNSPECIFIED
+            .Format = DXGI_FORMAT_B8G8R8A8_UNORM, // Format that the texture resource should use.
+            .ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED, // The raster technique for image generation.
+            .Scaling = DXGI_MODE_SCALING_UNSPECIFIED // How the buffer will be applied to the window's client area.
         },
-        .SampleDesc =
+        .SampleDesc = // Options for multisampling anti-aliasing (MSAA)
         {
-            .Count = 1,
-            .Quality = 0
+            .Count = 1, // The number of samples.
+            .Quality = 0 // The quality of their sampling pattern.
         },
-        .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
-        .BufferCount = 1,
-        .OutputWindow = g_Window.GetWindowHandle(),
-        .Windowed = true,
-        .SwapEffect = DXGI_SWAP_EFFECT_DISCARD,
-        .Flags = 0,
+        .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT, // The intended usage of the swap chain.
+        .BufferCount = 1, // How many buffers in the swap chain.
+        .OutputWindow = g_Window.GetWindowHandle(), // Handle of the window that will receive the swap chain.
+        .Windowed = true, // Whether the window should appear windowed or fullscreen.
+        .SwapEffect = DXGI_SWAP_EFFECT_DISCARD, // What is done to the buffer contents after they are presented to the window.
+        .Flags = 0, // Misc. flags to further configure the buffer.
     };
 
     u32 d3dRuntimeLayerFlags = 0;
