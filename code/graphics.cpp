@@ -16,6 +16,13 @@ namespace
 {
     #define SAFE_RELEASE(x) \
     do { \
+        if (x) \
+        { \
+            (x)->Release(); \
+            (x) = nullptr; \
+        } \
+    } while (0) \
+
     // TODO(sbalse): We're currently using asserts and crash the game in case of serious errors; And we don't
     // use exceptions. Should we still use a ComPtr for these pointers?
     constinit ID3D11Device* g_D3DDevice = nullptr;
@@ -71,7 +78,7 @@ namespace
         };
 
         ID3D11Buffer* vertexBuffer = nullptr;
-        DEFER(vertexBuffer->Release());
+        DEFER(SAFE_RELEASE(vertexBuffer));
 
         D3D11_BUFFER_DESC bufferDesc =
         {
@@ -109,7 +116,7 @@ namespace
         };
 
         ID3D11Buffer* indexBuffer = nullptr;
-        DEFER(indexBuffer->Release());
+        DEFER(SAFE_RELEASE(indexBuffer));
 
         D3D11_BUFFER_DESC indexBufferDesc =
         {
@@ -148,7 +155,7 @@ namespace
         };
 
         ID3D11Buffer* constantBuffer = nullptr;
-        DEFER(constantBuffer->Release());
+        DEFER(SAFE_RELEASE(constantBuffer));
 
         D3D11_BUFFER_DESC constantBufferDesc =
         {
@@ -197,7 +204,7 @@ namespace
         };
 
         ID3D11Buffer* constantBuffer2 = nullptr;
-        DEFER(constantBuffer2->Release());
+        DEFER(SAFE_RELEASE(constantBuffer2));
 
         D3D11_BUFFER_DESC constantBufferDesc2 =
         {
@@ -224,11 +231,11 @@ namespace
         g_D3DDeviceContext->PSSetConstantBuffers(0u, 1u, &constantBuffer2);
 
         ID3DBlob* blob = nullptr;
-        DEFER(blob->Release());
+        DEFER(SAFE_RELEASE(blob));
 
         // Create pixel shader
         ID3D11PixelShader* pixelShader = nullptr;
-        DEFER(pixelShader->Release());
+        DEFER(SAFE_RELEASE(pixelShader));
 
         hr = D3DReadFileToBlob(L"pixelshader.cso", &blob);
         ValidateHRESULT(hr);
@@ -246,7 +253,7 @@ namespace
 
         // Create vertex shader
         ID3D11VertexShader* vertexShader = nullptr;
-        DEFER(vertexShader->Release());
+        DEFER(SAFE_RELEASE(vertexShader));
 
         hr = D3DReadFileToBlob(L"vertexshader.cso", &blob);
         ValidateHRESULT(hr);
@@ -264,7 +271,7 @@ namespace
 
         // Input (vertex) layout (2D positon only)
         ID3D11InputLayout* inputLayout = nullptr;
-        DEFER(inputLayout->Release());
+        DEFER(SAFE_RELEASE(inputLayout));
 
         const D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[] =
         {
@@ -377,7 +384,7 @@ bool GraphicsInit()
 
     // NOTE(sbalse): Get the back buffer of the swap chain
     ID3D11Resource* backBuffer = nullptr;
-    DEFER(backBuffer->Release());
+    DEFER(SAFE_RELEASE(backBuffer));
 
     hr = g_D3DSwapChain->GetBuffer(0, __uuidof(ID3D11Resource), reinterpret_cast<void**>(&backBuffer));
     HARDASSERT(backBuffer, "backBuffer is nullptr");
@@ -398,7 +405,7 @@ bool GraphicsInit()
     };
 
     ID3D11DepthStencilState* depthStencilState = nullptr;
-    DEFER(depthStencilState->Release());
+    DEFER(SAFE_RELEASE(depthStencilState));
 
     hr = g_D3DDevice->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
     ValidateHRESULT(hr);
@@ -408,7 +415,7 @@ bool GraphicsInit()
 
     // NOTE(sbalse): Create depth stencil texture.
     ID3D11Texture2D* depthStencil = nullptr;
-    DEFER(depthStencil->Release());
+    DEFER(SAFE_RELEASE(depthStencil));
 
     D3D11_TEXTURE2D_DESC depthDesc =
     {
@@ -454,30 +461,13 @@ bool GraphicsInit()
 
 void GraphicsDestroy()
 {
-    if (g_D3DDepthStencilView)
-    {
-        g_D3DDepthStencilView->Release();
-    }
+    g_D3DDeviceContext->ClearState();
 
-    if (g_D3DRenderTargetView)
-    {
-        g_D3DRenderTargetView->Release();
-    }
-
-    if (g_D3DDeviceContext)
-    {
-        g_D3DDeviceContext->Release();
-    }
-
-    if (g_D3DSwapChain)
-    {
-        g_D3DSwapChain->Release();
-    }
-
-    if (g_D3DDevice)
-    {
-        g_D3DDevice->Release();
-    }
+    SAFE_RELEASE(g_D3DDepthStencilView);
+    SAFE_RELEASE(g_D3DRenderTargetView);
+    SAFE_RELEASE(g_D3DDeviceContext);
+    SAFE_RELEASE(g_D3DSwapChain);
+    SAFE_RELEASE(g_D3DDevice);
 }
 
 void GraphicsProcessWindowsMessages()
