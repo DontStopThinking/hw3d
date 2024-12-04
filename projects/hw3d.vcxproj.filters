@@ -21,7 +21,16 @@
     <ClInclude Include="..\code\mathutils.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\code\vertexshader.hlsl" />
-    <FxCompile Include="..\code\pixelshader.hlsl" />
+    <Filter Include="shaders">
+      <UniqueIdentifier>{fc75170f-97c3-4d0f-b0a4-a528a5317416}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\code\shaders\pixelshader.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\code\shaders\vertexshader.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
