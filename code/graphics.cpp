@@ -475,7 +475,7 @@ void GraphicsProcessWindowsMessages()
     g_Window.ProcessMessages();
 }
 
-void GraphicsDoFrame()
+void GraphicsRunFrame()
 {
     static float i = 0;
     const float color = std::sinf(i) / 2.0f + 0.5f;

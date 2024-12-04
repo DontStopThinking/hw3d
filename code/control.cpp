@@ -85,7 +85,7 @@ namespace
 
         GameLogic();
 
-        GraphicsDoFrame();
+        GraphicsRunFrame();
     }
 
     bool EndFrame()
@@ -98,7 +98,7 @@ namespace
     bool Run()
     {
         RunFrame();
-        const bool isRunning = EndFrame(); // NOTE(sbalse): Has quit been requested at the end of a frame.
+        const bool isRunning = EndFrame(); // NOTE(sbalse): Has quit been requested at the end of a frame?
         return isRunning;
     }
 }

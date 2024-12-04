@@ -7,5 +7,5 @@
 bool GraphicsInit();
 void GraphicsDestroy();
 void GraphicsProcessWindowsMessages();
-void GraphicsDoFrame();
+void GraphicsRunFrame();
 bool GraphicsEndFrame();
