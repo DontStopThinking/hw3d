@@ -23,6 +23,7 @@ constinit ID3D11DeviceContext* g_D3DDeviceContext = nullptr;
 constinit ID3D11RenderTargetView* g_D3DRenderTargetView = nullptr;
 constinit ID3D11DepthStencilView* g_D3DDepthStencilView = nullptr;
 
+// NOTE(sbalse): The main window.
 Window g_Window;
 
 void InitDeviceAndSwapChain();
@@ -448,12 +449,12 @@ void DrawTestCube(float angle, float cubeX, float cubeZ)
     {
         .m_FaceColors =
         {
-            {.m_R = 1.0f, .m_G = 0.0f, .m_B = 1.0f },
-            {.m_R = 1.0f, .m_G = 0.0f, .m_B = 0.0f },
-            {.m_R = 0.0f, .m_G = 1.0f, .m_B = 0.0f },
-            {.m_R = 0.0f, .m_G = 0.0f, .m_B = 1.0f },
-            {.m_R = 1.0f, .m_G = 1.0f, .m_B = 0.0f },
-            {.m_R = 0.0f, .m_G = 1.0f, .m_B = 1.0f },
+            { .m_R = 1.0f, .m_G = 0.0f, .m_B = 1.0f },
+            { .m_R = 1.0f, .m_G = 0.0f, .m_B = 0.0f },
+            { .m_R = 0.0f, .m_G = 1.0f, .m_B = 0.0f },
+            { .m_R = 0.0f, .m_G = 0.0f, .m_B = 1.0f },
+            { .m_R = 1.0f, .m_G = 1.0f, .m_B = 0.0f },
+            { .m_R = 0.0f, .m_G = 1.0f, .m_B = 1.0f },
         }
     };
 
@@ -483,7 +484,7 @@ void DrawTestCube(float angle, float cubeX, float cubeZ)
 
     g_D3DDeviceContext->PSSetConstantBuffers(0u, 1u, &faceColorsCB);
 
-    // Set primitive topology to triangle list (groups of 3 vertices).
+    // NOTE(sbalse): Set primitive topology to triangle list (groups of 3 vertices).
     g_D3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     constexpr u32 indexCount = static_cast<u32>(ArraySize(indices));
