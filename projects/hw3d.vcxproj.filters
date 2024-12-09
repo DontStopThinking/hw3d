@@ -4,25 +4,38 @@
     <ClCompile Include="..\code\main.cpp" />
     <ClCompile Include="..\code\window.cpp" />
     <ClCompile Include="..\code\input.cpp" />
-    <ClCompile Include="..\code\graphics.cpp" />
     <ClCompile Include="..\code\control.cpp" />
     <ClCompile Include="..\code\asserts.cpp" />
     <ClCompile Include="..\code\mathutils.cpp" />
+    <ClCompile Include="..\code\graphics\graphics.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\cleanwindows.h" />
     <ClInclude Include="..\code\window.h" />
     <ClInclude Include="..\code\types.h" />
     <ClInclude Include="..\code\input.h" />
-    <ClInclude Include="..\code\graphics.h" />
     <ClInclude Include="..\code\control.h" />
     <ClInclude Include="..\code\asserts.h" />
     <ClInclude Include="..\code\utils.h" />
     <ClInclude Include="..\code\mathutils.h" />
+    <ClInclude Include="..\code\graphics\graphics.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\graphics\graphicsutils.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\graphics\vertex.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">
       <UniqueIdentifier>{fc75170f-97c3-4d0f-b0a4-a528a5317416}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics">
+      <UniqueIdentifier>{28eb9e84-bb4b-4748-85d9-235204602aae}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

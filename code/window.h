@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cleanwindows.h"
-#include "graphics.h"
 
 class Window
 {

@@ -1,6 +1,7 @@
 #include "control.h"
 
-#include "graphics.h"
+#include "cleanwindows.h"
+#include "graphics/graphics.h"
 #include "input.h"
 
 namespace
@@ -81,6 +82,7 @@ namespace
 
     void RunFrame()
     {
+        // NOTE(sbalse): Windows messages should be processed before running the game logic.
         GraphicsProcessWindowsMessages();
 
         GameLogic();
