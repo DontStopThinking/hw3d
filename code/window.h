@@ -15,7 +15,15 @@ private:
     static LRESULT CALLBACK WndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
 
 public:
-    Window();
+    constexpr Window()
+        : m_Width{ 0 }
+        , m_Height{ 0 }
+        , m_Title{ nullptr }
+        , m_WindowHandle{ nullptr }
+        , m_ClassName{ L"hw3d" } // TODO: Proper multiple windows support?
+        , m_IsRunning{ false }
+    {
+    }
 
     bool Init(const int width, const int height, const LPCWSTR title);
     void Show() const;

@@ -23,7 +23,7 @@ namespace
     constinit DeviceResources g_DeviceResources = {};
 
     // NOTE(sbalse): The main window.
-    Window g_Window = {};
+    constinit Window g_Window = {};
 
     void InitDeviceAndSwapChain();
     void InitDepthStencilAndRenderTargetView();
