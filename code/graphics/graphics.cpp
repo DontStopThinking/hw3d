@@ -91,7 +91,7 @@ void GraphicsRunFrame()
     // NOTE(sbalse): Rotate boxes
     RotateBoxes(g_Boxes, g_TotalNumberOfBoxes, 0.01f, &g_DeviceResources);
 
-    // NOTE(sbalse): Draw boxes.
+    // NOTE(sbalse): Draw boxes
     for (int j = 0; j < g_TotalNumberOfBoxes; j++)
     {
         DrawBox(&g_Boxes[j], &g_DeviceResources);

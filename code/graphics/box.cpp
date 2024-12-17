@@ -48,6 +48,23 @@ namespace
             float m_A;
         } m_FaceColors[6];
     };
+
+    TransformConstantBuffer ApplyTransformation(
+        const Box* box,
+        const XMFLOAT3 position,
+        const XMFLOAT3 rotation)
+    {
+        const TransformConstantBuffer result =
+        {
+            .m_Transform = XMMatrixTranspose(
+                XMMatrixRotationRollPitchYaw(box->m_Rotation.x, box->m_Rotation.y, box->m_Rotation.z) *
+                XMMatrixTranslation(box->m_Position.x, box->m_Position.y, box->m_Position.z) *
+                XMMatrixTranslation(0.0f, 0.0f, 20.0f) *
+                g_ProjectionMatrix)
+        };
+
+        return result;
+    }
 } // namespace
 
 Box CreateBox(
@@ -105,14 +122,7 @@ Box CreateBox(
     ValidateHRESULT(hr);
 
     // NOTE(sbalse): Create the transformation constant buffer
-    const TransformConstantBuffer transform =
-    {
-        .m_Transform = XMMatrixTranspose(
-            XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
-            XMMatrixTranslation(position.x, position.y, position.z) *
-            XMMatrixTranslation(0.0f,0.0f,20.0f) *
-            g_ProjectionMatrix)
-    };
+    const TransformConstantBuffer transform = ApplyTransformation(&result, position, rotation);
 
     D3D11_SUBRESOURCE_DATA transformInitData =
     {
@@ -214,14 +224,10 @@ void RotateBoxes(
             currentBoxRotation.z + rotationSpeed);
         boxes[i].m_Rotation = newBoxRotation;
 
-        const TransformConstantBuffer transform =
-        {
-            .m_Transform = XMMatrixTranspose(
-                XMMatrixRotationRollPitchYaw(boxes[i].m_Rotation.x, boxes[i].m_Rotation.y, boxes[i].m_Rotation.z) *
-                XMMatrixTranslation(boxes[i].m_Position.x, boxes[i].m_Position.y, boxes[i].m_Position.z) *
-                XMMatrixTranslation(0.0f, 0.0f, 20.0f) *
-                g_ProjectionMatrix)
-        };
+        const TransformConstantBuffer transform = ApplyTransformation(
+            &boxes[i],
+            currentBoxPos,
+            newBoxRotation);
 
         D3D11_MAPPED_SUBRESOURCE mappedResource = {};
         HRESULT hr = deviceResources->m_DeviceContext->Map(
