@@ -10,10 +10,3 @@ void GraphicsRunFrame();
 bool GraphicsEndFrame();
 void GraphicsProcessWindowsMessages();
 void GraphicsDestroy();
-
-void GraphicsDrawCube(
-    XMFLOAT3 position,
-    float pitch,
-    float yaw,
-    float roll
-);
