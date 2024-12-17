@@ -177,11 +177,6 @@ bool Window::Init(const int width, const int height, const LPCWSTR title)
 
     SetWindowLongPtr(m_WindowHandle, GWLP_USERDATA, LONG_PTR(this));
 
-    // ShowWindow(m_WindowHandle, SW_SHOW);
-
-    // NOTE(sbalse): Initialize graphics
-    //m_Graphics.Init(m_WindowHandle);
-
     m_IsRunning = true;
 
     return true;

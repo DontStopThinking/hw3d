@@ -10,6 +10,9 @@
     <ClCompile Include="..\code\graphics\graphics.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\graphics\box.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\cleanwindows.h" />
@@ -27,6 +30,9 @@
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\code\graphics\vertex.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\graphics\box.h">
       <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>

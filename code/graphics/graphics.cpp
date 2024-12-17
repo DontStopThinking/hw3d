@@ -1,6 +1,7 @@
 #include "graphics.h"
 
 #include <cmath>
+#include <random>
 #include "cleanwindows.h"
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -11,30 +12,28 @@
 #include "mathutils.h"
 #include "window.h"
 #include "utils.h"
+#include "graphics/box.h"
 #include "graphics/graphicsutils.h"
 #include "graphics/vertex.h"
 
+using namespace DirectX;
+
 namespace
 {
-// TODO(sbalse): Should we ComPtr for these?
-constinit ID3D11Device* g_D3DDevice = nullptr;
-constinit IDXGISwapChain* g_D3DSwapChain = nullptr;
-constinit ID3D11DeviceContext* g_D3DDeviceContext = nullptr;
-constinit ID3D11RenderTargetView* g_D3DRenderTargetView = nullptr;
-constinit ID3D11DepthStencilView* g_D3DDepthStencilView = nullptr;
+    constinit DeviceResources g_DeviceResources = {};
 
-// NOTE(sbalse): The main window.
-Window g_Window;
+    // NOTE(sbalse): The main window.
+    Window g_Window = {};
 
-void InitDeviceAndSwapChain();
-void InitDepthStencilAndRenderTargetView();
-void InitShaders();
+    void InitDeviceAndSwapChain();
+    void InitDepthStencilAndRenderTargetView();
+    void InitShaders();
 
-void GraphicsClearBuffer(const float r, const float g, const float b);
-void DrawTestCube(float angle, float cubeX, float cubeZ);
-
-void ValidateHRESULT(const HRESULT result);
+    void GraphicsClearBuffer(const float r, const float g, const float b);
 } // namespace
+
+constexpr int g_TotalNumberOfBoxes = 40;
+constinit Box g_Boxes[g_TotalNumberOfBoxes] = {};
 
 bool GraphicsInit()
 {
@@ -54,6 +53,25 @@ bool GraphicsInit()
 
     InitShaders();
 
+    // Init all cube positions
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::uniform_real_distribution<float> randomCubePosDistribution(-10.0f, 10.0f);
+    std::uniform_real_distribution<float> randomCubeRotDistribution(-10.0f, 10.0f);
+
+    for (int i = 0; i < g_TotalNumberOfBoxes; i++)
+    {
+        const float x = randomCubePosDistribution(rng);
+        const float y = randomCubePosDistribution(rng);
+        const float z = randomCubePosDistribution(rng);
+        const float rot = randomCubeRotDistribution(rng);
+
+        const XMFLOAT3 position(x, y, z);
+        const XMFLOAT3 rotation(rot, rot, rot);
+
+        g_Boxes[i] = CreateBox(position, rotation, &g_DeviceResources);
+    }
+
     g_Window.Show();
 
     return true;
@@ -61,37 +79,46 @@ bool GraphicsInit()
 
 void GraphicsRunFrame()
 {
-    static float i = 0;
-    const float color = std::sinf(i) / 2.0f + 0.5f;
+    //static float i = 0;
+    //const float color = std::sinf(i) / 2.0f + 0.5f;
     //constexpr float cauliflowerBlue[] = { 0.588f, 0.745f, 0.827f };
+    constexpr float color = 0.0f;
 
-    GraphicsClearBuffer(color, color, 1.0f);
+    GraphicsClearBuffer(color, color, color);
 
-    i = PingPong(i, 0.0f, 10.0f, 0.02f); // NOTE(sbalse): Oscillate value between min and max.
+    //i = PingPong(i, 0.0f, 10.0f, 0.02f); // NOTE(sbalse): Oscillate value between min and max.
 
-    const float mouseX = (static_cast<float>(InputMouseX()) / (g_Window.GetWidth() / 2.0f)) - 1.0f;
-    const float mouseY = ((static_cast<float>(InputMouseY()) / (g_Window.GetHeight() / 2.0f)) - 1.0f) * -1.0f;
+    // NOTE(sbalse): Rotate boxes
+    RotateBoxes(g_Boxes, g_TotalNumberOfBoxes, 0.01f, &g_DeviceResources);
 
-    DrawTestCube(-i, 0.0f, 0.0f);
-    DrawTestCube(i, mouseX, mouseY);
+    // NOTE(sbalse): Draw boxes.
+    for (int j = 0; j < g_TotalNumberOfBoxes; j++)
+    {
+        DrawBox(&g_Boxes[j], &g_DeviceResources);
+    }
 }
 
 bool GraphicsEndFrame()
 {
-    g_D3DSwapChain->Present(1, 0);
+    g_DeviceResources.m_SwapChain->Present(1, 0);
 
     return g_Window.IsRunning();
 }
 
 void GraphicsDestroy()
 {
-    g_D3DDeviceContext->ClearState();
+    for (int j = 0; j < g_TotalNumberOfBoxes; j++)
+    {
+        DestroyBox(&g_Boxes[j]);
+    }
 
-    SAFE_RELEASE(g_D3DDepthStencilView);
-    SAFE_RELEASE(g_D3DRenderTargetView);
-    SAFE_RELEASE(g_D3DDeviceContext);
-    SAFE_RELEASE(g_D3DSwapChain);
-    SAFE_RELEASE(g_D3DDevice);
+    g_DeviceResources.m_DeviceContext->ClearState();
+
+    SAFE_RELEASE(g_DeviceResources.m_DepthStencilView);
+    SAFE_RELEASE(g_DeviceResources.m_RenderTargetView);
+    SAFE_RELEASE(g_DeviceResources.m_DeviceContext);
+    SAFE_RELEASE(g_DeviceResources.m_SwapChain);
+    SAFE_RELEASE(g_DeviceResources.m_Device);
 }
 
 void GraphicsProcessWindowsMessages()
@@ -148,10 +175,10 @@ void InitDeviceAndSwapChain()
         0,                          // no. of feature levels
         D3D11_SDK_VERSION,          // sdk version,
         &swapChainDescription,      // the swap chain description
-        &g_D3DSwapChain,            // the swap chain used to rendering
-        &g_D3DDevice,               // the D3D device
+        &g_DeviceResources.m_SwapChain,            // the swap chain used to rendering
+        &g_DeviceResources.m_Device,               // the D3D device
         nullptr,                    // feature levels supported by the device
-        &g_D3DDeviceContext         // get the device context
+        &g_DeviceResources.m_DeviceContext         // get the device context
     );
     ValidateHRESULT(hr);
 }
@@ -162,14 +189,14 @@ void InitDepthStencilAndRenderTargetView()
     ID3D11Resource* backBuffer = nullptr;
     DEFER(SAFE_RELEASE(backBuffer));
 
-    HRESULT hr = g_D3DSwapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer));
+    HRESULT hr = g_DeviceResources.m_SwapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer));
     HARDASSERT(backBuffer, "backBuffer is nullptr");
     ValidateHRESULT(hr);
 
-    hr = g_D3DDevice->CreateRenderTargetView(
+    hr = g_DeviceResources.m_Device->CreateRenderTargetView(
         backBuffer,
         nullptr,
-        &g_D3DRenderTargetView);
+        &g_DeviceResources.m_RenderTargetView);
     ValidateHRESULT(hr);
 
     // NOTE(sbalse): Create depth stencil state.
@@ -183,11 +210,11 @@ void InitDepthStencilAndRenderTargetView()
     ID3D11DepthStencilState* depthStencilState = nullptr;
     DEFER(SAFE_RELEASE(depthStencilState));
 
-    hr = g_D3DDevice->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
+    hr = g_DeviceResources.m_Device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
     ValidateHRESULT(hr);
 
     // NOTE(sbalse): Bind depth state.
-    g_D3DDeviceContext->OMSetDepthStencilState(depthStencilState, 1u);
+    g_DeviceResources.m_DeviceContext->OMSetDepthStencilState(depthStencilState, 1u);
 
     // NOTE(sbalse): Create depth stencil texture.
     ID3D11Texture2D* depthStencil = nullptr;
@@ -209,7 +236,7 @@ void InitDepthStencilAndRenderTargetView()
         .BindFlags = D3D11_BIND_DEPTH_STENCIL,
     };
 
-    hr = g_D3DDevice->CreateTexture2D(&depthDesc, nullptr, &depthStencil);
+    hr = g_DeviceResources.m_Device->CreateTexture2D(&depthDesc, nullptr, &depthStencil);
     HARDASSERT(depthStencil, "Failed to create a depth stencil texture");
     ValidateHRESULT(hr);
 
@@ -224,11 +251,17 @@ void InitDepthStencilAndRenderTargetView()
         },
     };
 
-    hr = g_D3DDevice->CreateDepthStencilView(depthStencil, &depthStencilViewDesc, &g_D3DDepthStencilView);
+    hr = g_DeviceResources.m_Device->CreateDepthStencilView(
+        depthStencil,
+        &depthStencilViewDesc,
+        &g_DeviceResources.m_DepthStencilView);
     ValidateHRESULT(hr);
 
     // NOTE(sbalse): Bind depth stencil view to OM.
-    g_D3DDeviceContext->OMSetRenderTargets(1u, &g_D3DRenderTargetView, g_D3DDepthStencilView);
+    g_DeviceResources.m_DeviceContext->OMSetRenderTargets(
+        1u,
+        &g_DeviceResources.m_RenderTargetView,
+        g_DeviceResources.m_DepthStencilView);
 
     // Configure viewport
     D3D11_VIEWPORT viewport =
@@ -240,7 +273,7 @@ void InitDepthStencilAndRenderTargetView()
         .MinDepth = 0,
         .MaxDepth = 1
     };
-    g_D3DDeviceContext->RSSetViewports(1u, &viewport);
+    g_DeviceResources.m_DeviceContext->RSSetViewports(1u, &viewport);
 }
 
 void InitShaders()
@@ -255,7 +288,7 @@ void InitShaders()
     HRESULT hr = D3DReadFileToBlob(L"vertexshader.cso", &blob);
     ValidateHRESULT(hr);
 
-    hr = g_D3DDevice->CreateVertexShader(
+    hr = g_DeviceResources.m_Device->CreateVertexShader(
         blob->GetBufferPointer(),
         blob->GetBufferSize(),
         nullptr,
@@ -263,7 +296,7 @@ void InitShaders()
     );
     ValidateHRESULT(hr);
 
-    g_D3DDeviceContext->VSSetShader(vertexShader, nullptr, 0u);
+    g_DeviceResources.m_DeviceContext->VSSetShader(vertexShader, nullptr, 0u);
 
     // NOTE(sbalse): Create Input Layout
     ID3D11InputLayout* inputLayout = nullptr;
@@ -282,7 +315,7 @@ void InitShaders()
         },
     };
 
-    hr = g_D3DDevice->CreateInputLayout(
+    hr = g_DeviceResources.m_Device->CreateInputLayout(
         inputLayoutDesc,
         static_cast<u32>(ArraySize(inputLayoutDesc)),
         blob->GetBufferPointer(),
@@ -292,7 +325,7 @@ void InitShaders()
     ValidateHRESULT(hr);
 
     // NOTE(sbalse): Bind vertex layout
-    g_D3DDeviceContext->IASetInputLayout(inputLayout);
+    g_DeviceResources.m_DeviceContext->IASetInputLayout(inputLayout);
 
     // NOTE(sbalse): Create pixel shader
     ID3D11PixelShader* pixelShader = nullptr;
@@ -301,7 +334,7 @@ void InitShaders()
     hr = D3DReadFileToBlob(L"pixelshader.cso", &blob);
     ValidateHRESULT(hr);
 
-    hr = g_D3DDevice->CreatePixelShader(
+    hr = g_DeviceResources.m_Device->CreatePixelShader(
         blob->GetBufferPointer(),
         blob->GetBufferSize(),
         nullptr,
@@ -309,190 +342,17 @@ void InitShaders()
     );
     ValidateHRESULT(hr);
 
-    g_D3DDeviceContext->PSSetShader(pixelShader, nullptr, 0u);
+    g_DeviceResources.m_DeviceContext->PSSetShader(pixelShader, nullptr, 0u);
 }
 
 void GraphicsClearBuffer(const float r, const float g, const float b)
 {
     const float color[] = { r, g, b, 1.0f };
-    g_D3DDeviceContext->ClearRenderTargetView(g_D3DRenderTargetView, color);
-    g_D3DDeviceContext->ClearDepthStencilView(g_D3DDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0u);
-}
-
-void DrawTestCube(float angle, float cubeX, float cubeZ)
-{
-    // NOTE(sbalse): Create vertex buffer
-    constexpr Vertex vertices[] =
-    {
-        // NOTE(sbalse): Cube
-        { .m_Pos = { -1.0f, -1.0f, -1.0f } },
-        { .m_Pos = { 1.0f, -1.0f, -1.0f } },
-        { .m_Pos = { -1.0f, 1.0f, -1.0f } },
-        { .m_Pos = { 1.0f, 1.0f, -1.0f } },
-        { .m_Pos = { -1.0f, -1.0f, 1.0f } },
-        { .m_Pos = { 1.0f, -1.0f, 1.0f } },
-        { .m_Pos = { -1.0f, 1.0f, 1.0f } },
-        { .m_Pos = { 1.0f, 1.0f, 1.0f } },
-    };
-
-    ID3D11Buffer* vertexBuffer = nullptr;
-    DEFER(SAFE_RELEASE(vertexBuffer));
-
-    D3D11_BUFFER_DESC bufferDesc =
-    {
-        .ByteWidth = sizeof(vertices),
-        .Usage = D3D11_USAGE_DEFAULT,
-        .BindFlags = D3D11_BIND_VERTEX_BUFFER,
-        .CPUAccessFlags = 0u,
-        .MiscFlags = 0u,
-        .StructureByteStride = sizeof(Vertex)
-    };
-
-    D3D11_SUBRESOURCE_DATA subResourceVertices =
-    {
-        .pSysMem = vertices
-    };
-
-    HRESULT hr = g_D3DDevice->CreateBuffer(&bufferDesc, &subResourceVertices, &vertexBuffer);
-    ValidateHRESULT(hr);
-
-    constexpr u32 stride = sizeof(Vertex);
-    constexpr u32 offset = 0u;
-
-    g_D3DDeviceContext->IASetVertexBuffers(0u, 1u, &vertexBuffer, &stride, &offset);
-
-    // NOTE(sbalse): Create index buffer
-    constexpr u16 indices[] =
-    {
-        0, 2, 1, 2, 3, 1,
-        1, 3, 5, 3, 7, 5,
-        2, 6, 3, 3, 6, 7,
-        4, 5, 7, 4, 7, 6,
-        0, 4, 2, 2, 4, 6,
-        0, 1, 4, 1, 5, 4,
-    };
-
-    ID3D11Buffer* indexBuffer = nullptr;
-    DEFER(SAFE_RELEASE(indexBuffer));
-
-    D3D11_BUFFER_DESC indexBufferDesc =
-    {
-        .ByteWidth = sizeof(indices),
-        .Usage = D3D11_USAGE_DEFAULT,
-        .BindFlags = D3D11_BIND_INDEX_BUFFER,
-        .CPUAccessFlags = 0u,
-        .MiscFlags = 0u,
-        .StructureByteStride = sizeof(u16),
-    };
-
-    D3D11_SUBRESOURCE_DATA subResourceIndices =
-    {
-        .pSysMem = indices,
-    };
-
-    hr = g_D3DDevice->CreateBuffer(&indexBufferDesc, &subResourceIndices, &indexBuffer);
-    ValidateHRESULT(hr);
-
-    g_D3DDeviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R16_UINT, 0u);
-
-    // NOTE(sbalse): Create constant buffer for transformation matrix
-    struct TransformCB
-    {
-        dx::XMMATRIX m_Transform;
-    };
-
-    const TransformCB transformCBData =
-    {
-        .m_Transform = dx::XMMatrixTranspose(
-            dx::XMMatrixRotationZ(angle)
-            * dx::XMMatrixRotationX(angle)
-            * dx::XMMatrixTranslation(cubeX, 0.0f, cubeZ + 4.0f)
-            * dx::XMMatrixPerspectiveLH(1.0f, 3.0f / 4.0f, 0.5f, 10.0f)),
-    };
-
-    ID3D11Buffer* transformCB = nullptr;
-    DEFER(SAFE_RELEASE(transformCB));
-
-    D3D11_BUFFER_DESC transformCBDesc =
-    {
-        .ByteWidth = sizeof(transformCBData),
-        .Usage = D3D11_USAGE_DYNAMIC,
-        .BindFlags = D3D11_BIND_CONSTANT_BUFFER,
-        .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
-        .MiscFlags = 0u,
-        .StructureByteStride = 0u,
-    };
-
-    D3D11_SUBRESOURCE_DATA transformCBSubres =
-    {
-        .pSysMem = &transformCBData
-    };
-
-    hr = g_D3DDevice->CreateBuffer(&transformCBDesc, &transformCBSubres, &transformCB);
-    ValidateHRESULT(hr);
-
-    g_D3DDeviceContext->VSSetConstantBuffers(0u, 1u, &transformCB);
-
-    // NOTE(sbalse): Create constant buffer for cube face colors
-    struct FaceColorsCB
-    {
-        struct
-        {
-            float m_R;
-            float m_G;
-            float m_B;
-            float m_A;
-        } m_FaceColors[6];
-    };
-
-    FaceColorsCB faceColorsCBData =
-    {
-        .m_FaceColors =
-        {
-            { .m_R = 1.0f, .m_G = 0.0f, .m_B = 1.0f },
-            { .m_R = 1.0f, .m_G = 0.0f, .m_B = 0.0f },
-            { .m_R = 0.0f, .m_G = 1.0f, .m_B = 0.0f },
-            { .m_R = 0.0f, .m_G = 0.0f, .m_B = 1.0f },
-            { .m_R = 1.0f, .m_G = 1.0f, .m_B = 0.0f },
-            { .m_R = 0.0f, .m_G = 1.0f, .m_B = 1.0f },
-        }
-    };
-
-    ID3D11Buffer* faceColorsCB = nullptr;
-    DEFER(SAFE_RELEASE(faceColorsCB));
-
-    D3D11_BUFFER_DESC faceColorsCBDesc =
-    {
-        .ByteWidth = sizeof(faceColorsCBData),
-        .Usage = D3D11_USAGE_DEFAULT,
-        .BindFlags = D3D11_BIND_CONSTANT_BUFFER,
-        .CPUAccessFlags = 0u,
-        .MiscFlags = 0u,
-        .StructureByteStride = 0u,
-    };
-
-    D3D11_SUBRESOURCE_DATA faceColorsSubres =
-    {
-        .pSysMem = &faceColorsCBData
-    };
-
-    hr = g_D3DDevice->CreateBuffer(
-        &faceColorsCBDesc,
-        &faceColorsSubres,
-        &faceColorsCB);
-    ValidateHRESULT(hr);
-
-    g_D3DDeviceContext->PSSetConstantBuffers(0u, 1u, &faceColorsCB);
-
-    // NOTE(sbalse): Set primitive topology to triangle list (groups of 3 vertices).
-    g_D3DDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    constexpr u32 indexCount = static_cast<u32>(ArraySize(indices));
-    g_D3DDeviceContext->DrawIndexed(indexCount, 0u, 0);
-}
-
-void ValidateHRESULT(const HRESULT result)
-{
-    HARDASSERT(SUCCEEDED(result), "Operation resulted in a failed HRESULT");
+    g_DeviceResources.m_DeviceContext->ClearRenderTargetView(g_DeviceResources.m_RenderTargetView, color);
+    g_DeviceResources.m_DeviceContext->ClearDepthStencilView(
+        g_DeviceResources.m_DepthStencilView,
+        D3D11_CLEAR_DEPTH,
+        1.0f,
+        0u);
 }
 } // namespace
