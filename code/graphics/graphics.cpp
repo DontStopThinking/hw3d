@@ -12,7 +12,7 @@
 #include "mathutils.h"
 #include "window.h"
 #include "utils.h"
-#include "graphics/box.h"
+#include "graphics/rotatingbox.h"
 #include "graphics/graphicsutils.h"
 #include "graphics/vertex.h"
 
@@ -33,7 +33,7 @@ namespace
 } // namespace
 
 constexpr int g_TotalNumberOfBoxes = 40;
-constinit Box g_Boxes[g_TotalNumberOfBoxes] = {};
+constinit RotatingBox g_Boxes[g_TotalNumberOfBoxes] = {};
 
 bool GraphicsInit()
 {
@@ -56,20 +56,25 @@ bool GraphicsInit()
     // Init all cube positions
     std::random_device rd;
     std::mt19937 rng(rd());
-    std::uniform_real_distribution<float> randomCubePosDistribution(-10.0f, 10.0f);
-    std::uniform_real_distribution<float> randomCubeRotDistribution(-10.0f, 10.0f);
+    std::uniform_real_distribution<float> randomBoxPosDistribution(6.0f, 20.0f);
+    std::uniform_real_distribution<float> randomBoxWorldRotation(0.0f, 3.1415f * 2.0f);
+    std::uniform_real_distribution<float> randomBoxSelfRotationSpeed(0.01f, 0.04f);
+    std::uniform_real_distribution<float> randomBoxWorldRotationSpeed(0.001f, 0.005f);
 
     for (int i = 0; i < g_TotalNumberOfBoxes; i++)
     {
-        const float x = randomCubePosDistribution(rng);
-        const float y = randomCubePosDistribution(rng);
-        const float z = randomCubePosDistribution(rng);
-        const float rot = randomCubeRotDistribution(rng);
+        const float distFromCenterOfWorld = randomBoxPosDistribution(rng);
+        const float worldRot = randomBoxWorldRotation(rng);
+        const float selfRotSpeed = randomBoxSelfRotationSpeed(rng);
+        const float worldRotSpeed = randomBoxWorldRotationSpeed(rng);
 
-        const XMFLOAT3 position(x, y, z);
-        const XMFLOAT3 rotation(rot, rot, rot);
-
-        g_Boxes[i] = CreateBox(position, rotation, &g_DeviceResources);
+        g_Boxes[i] = CreateRotatingBox(
+            distFromCenterOfWorld,
+            0.0f,
+            selfRotSpeed,
+            worldRot,
+            worldRotSpeed,
+            &g_DeviceResources);
     }
 
     g_Window.Show();
@@ -89,12 +94,12 @@ void GraphicsRunFrame()
     //i = PingPong(i, 0.0f, 10.0f, 0.02f); // NOTE(sbalse): Oscillate value between min and max.
 
     // NOTE(sbalse): Rotate boxes
-    RotateBoxes(g_Boxes, g_TotalNumberOfBoxes, 0.01f, &g_DeviceResources);
+    UpdateRotatingBoxes(g_Boxes, g_TotalNumberOfBoxes, &g_DeviceResources);
 
     // NOTE(sbalse): Draw boxes
     for (int j = 0; j < g_TotalNumberOfBoxes; j++)
     {
-        DrawBox(&g_Boxes[j], &g_DeviceResources);
+        DrawRotatingBox(&g_Boxes[j], &g_DeviceResources);
     }
 }
 
@@ -109,7 +114,7 @@ void GraphicsDestroy()
 {
     for (int j = 0; j < g_TotalNumberOfBoxes; j++)
     {
-        DestroyBox(&g_Boxes[j]);
+        DestroyRotatingBox(&g_Boxes[j]);
     }
 
     g_DeviceResources.m_DeviceContext->ClearState();

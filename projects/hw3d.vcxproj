@@ -96,7 +96,7 @@
   <ItemGroup>
     <ClCompile Include="..\code\asserts.cpp" />
     <ClCompile Include="..\code\control.cpp" />
-    <ClCompile Include="..\code\graphics\box.cpp" />
+    <ClCompile Include="..\code\graphics\rotatingbox.cpp" />
     <ClCompile Include="..\code\graphics\graphics.cpp" />
     <ClCompile Include="..\code\input.cpp" />
     <ClCompile Include="..\code\main.cpp" />
@@ -107,7 +107,7 @@
     <ClInclude Include="..\code\asserts.h" />
     <ClInclude Include="..\code\cleanwindows.h" />
     <ClInclude Include="..\code\control.h" />
-    <ClInclude Include="..\code\graphics\box.h" />
+    <ClInclude Include="..\code\graphics\rotatingbox.h" />
     <ClInclude Include="..\code\graphics\graphics.h" />
     <ClInclude Include="..\code\graphics\graphicsutils.h" />
     <ClInclude Include="..\code\graphics\vertex.h" />

@@ -1,4 +1,4 @@
-#include "graphics/box.h"
+#include "graphics/rotatingbox.h"
 
 #include <cstring>
 
@@ -49,16 +49,20 @@ namespace
         } m_FaceColors[6];
     };
 
-    TransformConstantBuffer ApplyTransformation(
-        const Box* box,
-        const XMFLOAT3 position,
-        const XMFLOAT3 rotation)
+    TransformConstantBuffer ApplyTransformation(const RotatingBox* box)
     {
         const TransformConstantBuffer result =
         {
             .m_Transform = XMMatrixTranspose(
-                XMMatrixRotationRollPitchYaw(box->m_Rotation.x, box->m_Rotation.y, box->m_Rotation.z) *
+                XMMatrixRotationRollPitchYaw(
+                    box->m_SelfRotation.x,
+                    box->m_SelfRotation.y,
+                    box->m_SelfRotation.z) *
                 XMMatrixTranslation(box->m_Position.x, box->m_Position.y, box->m_Position.z) *
+                XMMatrixRotationRollPitchYaw(
+                    box->m_WorldRotation.x,
+                    box->m_WorldRotation.y,
+                    box->m_WorldRotation.z) *
                 XMMatrixTranslation(0.0f, 0.0f, 20.0f) *
                 g_ProjectionMatrix)
         };
@@ -67,15 +71,27 @@ namespace
     }
 } // namespace
 
-Box CreateBox(
-    const XMFLOAT3 position,
-    const XMFLOAT3 rotation,
+RotatingBox CreateRotatingBox(
+    const float distanceFromCenterOfWorld,
+    const float selfRotation,
+    const float selfRotationSpeed,
+    const float worldRotation,
+    const float worldRotationSpeed,
     const DeviceResources* deviceResources)
 {
-    Box result = {};
+    RotatingBox result = {};
 
-    result.m_Position = position;
-    result.m_Rotation = rotation;
+    result.m_Position = XMFLOAT3(distanceFromCenterOfWorld, 0.0f, 0.0f);
+    result.m_SelfRotation = XMFLOAT3(
+        selfRotation,
+        selfRotation,
+        selfRotation);
+    result.m_SelfRotationSpeed = selfRotationSpeed;
+    result.m_WorldRotation = XMFLOAT3(
+        worldRotation,
+        worldRotation,
+        worldRotation);
+    result.m_WorldRotationSpeed = worldRotationSpeed;
 
     // NOTE(sbalse): Create vertex buffer.
     D3D11_BUFFER_DESC bufferDesc =
@@ -122,7 +138,7 @@ Box CreateBox(
     ValidateHRESULT(hr);
 
     // NOTE(sbalse): Create the transformation constant buffer
-    const TransformConstantBuffer transform = ApplyTransformation(&result, position, rotation);
+    const TransformConstantBuffer transform = ApplyTransformation(&result);
 
     D3D11_SUBRESOURCE_DATA transformInitData =
     {
@@ -185,7 +201,7 @@ Box CreateBox(
     return result;
 }
 
-void DrawBox(const Box* box, const DeviceResources* deviceResources)
+void DrawRotatingBox(const RotatingBox* box, const DeviceResources* deviceResources)
 {
     // NOTE(sbalse): Set primitive topology to triangle list (groups of 3 vertices).
     deviceResources->m_DeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -198,7 +214,7 @@ void DrawBox(const Box* box, const DeviceResources* deviceResources)
     deviceResources->m_DeviceContext->DrawIndexed(g_CubeIndicesCount, 0u, 0);
 }
 
-void DestroyBox(Box* box)
+void DestroyRotatingBox(RotatingBox* box)
 {
     SAFE_RELEASE(box->m_VertexBuffer);
     SAFE_RELEASE(box->m_IndexBuffer);
@@ -206,28 +222,31 @@ void DestroyBox(Box* box)
     SAFE_RELEASE(box->m_FaceColorsConstantBuffer);
 }
 
-void RotateBoxes(
-    Box* boxes,
+void UpdateRotatingBoxes(
+    RotatingBox* boxes,
     const size_t numberOfBoxes,
-    const float rotationSpeed,
     const DeviceResources* deviceResources)
 {
     for (size_t i = 0; i < numberOfBoxes; i++)
     {
-        const XMFLOAT3 currentBoxPos = boxes[i].m_Rotation;
+        const XMFLOAT3 currentBoxPos = boxes[i].m_Position;
 
         // NOTE(sbalse): Increase rotation by given rotation speed.
-        const XMFLOAT3 currentBoxRotation = boxes[i].m_Rotation;
-        const XMFLOAT3 newBoxRotation = XMFLOAT3(
-            currentBoxRotation.x + rotationSpeed,
-            currentBoxRotation.y + rotationSpeed,
-            currentBoxRotation.z + rotationSpeed);
-        boxes[i].m_Rotation = newBoxRotation;
+        const XMFLOAT3 currentBoxSelfRotation = boxes[i].m_SelfRotation;
+        const XMFLOAT3 newBoxSelfRotation = XMFLOAT3(
+            currentBoxSelfRotation.x + boxes[i].m_SelfRotationSpeed,
+            currentBoxSelfRotation.y + boxes[i].m_SelfRotationSpeed,
+            currentBoxSelfRotation.z + boxes[i].m_SelfRotationSpeed);
+        boxes[i].m_SelfRotation = newBoxSelfRotation;
 
-        const TransformConstantBuffer transform = ApplyTransformation(
-            &boxes[i],
-            currentBoxPos,
-            newBoxRotation);
+        const XMFLOAT3 currentBoxWorldRotation = boxes[i].m_WorldRotation;
+        const XMFLOAT3 newBoxWorldRotation = XMFLOAT3(
+            currentBoxWorldRotation.x + boxes[i].m_WorldRotationSpeed,
+            currentBoxWorldRotation.y + boxes[i].m_WorldRotationSpeed,
+            currentBoxWorldRotation.z + boxes[i].m_WorldRotationSpeed);
+        boxes[i].m_WorldRotation = newBoxWorldRotation;
+
+        const TransformConstantBuffer transform = ApplyTransformation(&boxes[i]);
 
         D3D11_MAPPED_SUBRESOURCE mappedResource = {};
         HRESULT hr = deviceResources->m_DeviceContext->Map(

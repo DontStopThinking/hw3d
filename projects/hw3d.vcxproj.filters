@@ -10,7 +10,7 @@
     <ClCompile Include="..\code\graphics\graphics.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\graphics\box.cpp">
+    <ClCompile Include="..\code\graphics\rotatingbox.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,7 +32,7 @@
     <ClInclude Include="..\code\graphics\vertex.h">
       <Filter>graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\graphics\box.h">
+    <ClInclude Include="..\code\graphics\rotatingbox.h">
       <Filter>graphics</Filter>
     </ClInclude>
   </ItemGroup>
