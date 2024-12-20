@@ -27,8 +27,8 @@ RotatingBox CreateRotatingBox(
     const float selfRotationSpeed,
     const float worldRotation,
     const float worldRotationSpeed,
-    const DeviceResources* deviceResources);
-void DrawRotatingBox(const RotatingBox* box, const DeviceResources* deviceResources);
+    const DeviceResources* const deviceResources);
+void DrawRotatingBox(const RotatingBox* const box, const DeviceResources* const deviceResources);
 void DestroyRotatingBox(RotatingBox* box);
 void UpdateRotatingBoxes(
     RotatingBox* boxes,

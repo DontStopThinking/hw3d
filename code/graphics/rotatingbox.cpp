@@ -77,7 +77,7 @@ RotatingBox CreateRotatingBox(
     const float selfRotationSpeed,
     const float worldRotation,
     const float worldRotationSpeed,
-    const DeviceResources* deviceResources)
+    const DeviceResources* const deviceResources)
 {
     RotatingBox result = {};
 
@@ -201,7 +201,7 @@ RotatingBox CreateRotatingBox(
     return result;
 }
 
-void DrawRotatingBox(const RotatingBox* box, const DeviceResources* deviceResources)
+void DrawRotatingBox(const RotatingBox* const box, const DeviceResources* const deviceResources)
 {
     // NOTE(sbalse): Set primitive topology to triangle list (groups of 3 vertices).
     deviceResources->m_DeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -225,7 +225,7 @@ void DestroyRotatingBox(RotatingBox* box)
 void UpdateRotatingBoxes(
     RotatingBox* boxes,
     const size_t numberOfBoxes,
-    const DeviceResources* deviceResources)
+    const DeviceResources* const deviceResources)
 {
     for (size_t i = 0; i < numberOfBoxes; i++)
     {

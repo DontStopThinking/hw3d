@@ -24,7 +24,6 @@ inline void ValidateHRESULT(const HRESULT result)
 struct DeviceResources
 {
     // TODO(sbalse): Should we use ComPtr for these?
-
     ID3D11Device* m_Device;
     ID3D11DeviceContext* m_DeviceContext;
     IDXGISwapChain* m_SwapChain;
