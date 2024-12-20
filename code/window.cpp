@@ -103,11 +103,11 @@ LRESULT Window::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return result;
 }
 
-bool Window::Init(const int width, const int height, const LPCWSTR title)
+bool Window::Init(const int width, const int height, const LPCWSTR applicationName)
 {
     m_Width = width;
     m_Height = height;
-    m_Title = title;
+    m_ApplicationName = applicationName;
 
     // NOTE(sbalse): Register window class
     WNDCLASSEX wc =
@@ -117,7 +117,7 @@ bool Window::Init(const int width, const int height, const LPCWSTR title)
         .lpfnWndProc = WndProc,
         .hInstance = GetModuleHandle(nullptr),
         .hCursor = LoadCursor(nullptr, IDC_ARROW),
-        .lpszClassName = m_ClassName,
+        .lpszClassName = m_ApplicationName,
         // .hIcon
     };
 
@@ -147,8 +147,8 @@ bool Window::Init(const int width, const int height, const LPCWSTR title)
 
     // NOTE(sbalse): Create window instance
     m_WindowHandle = CreateWindow(
-        m_ClassName,
-        m_Title, // window title
+        m_ApplicationName, // class name
+        m_ApplicationName, // window title
         windowStyle, // style
         CW_USEDEFAULT, // x
         CW_USEDEFAULT, // y
@@ -181,15 +181,15 @@ void Window::Destroy()
 {
     if (m_WindowHandle)
     {
-        UnregisterClass(m_ClassName, GetModuleHandle(nullptr));
+        UnregisterClass(m_ApplicationName, GetModuleHandle(nullptr));
         DestroyWindow(m_WindowHandle);
         m_WindowHandle = nullptr;
     }
 }
 
-void Window::SetTitle(const LPCWSTR title) const
+void Window::SetApplicationName(const LPCWSTR name) const
 {
-    SetWindowText(m_WindowHandle, title);
+    SetWindowText(m_WindowHandle, name);
 }
 
 void Window::ProcessMessages()

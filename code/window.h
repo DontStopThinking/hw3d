@@ -7,9 +7,9 @@ class Window
 private:
     int m_Width;
     int m_Height;
-    LPCWSTR m_Title;
+    // TODO: Proper multiple windows support?
+    LPCWSTR m_ApplicationName;
     HWND m_WindowHandle;
-    LPCWSTR m_ClassName;
     bool m_IsRunning;
 
     static LRESULT CALLBACK WndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -18,17 +18,16 @@ public:
     constexpr Window()
         : m_Width{ 0 }
         , m_Height{ 0 }
-        , m_Title{ nullptr }
+        , m_ApplicationName{ nullptr }
         , m_WindowHandle{ nullptr }
-        , m_ClassName{ L"hw3d" } // TODO: Proper multiple windows support?
         , m_IsRunning{ false }
     {
     }
 
-    bool Init(const int width, const int height, const LPCWSTR title);
+    bool Init(const int width, const int height, const LPCWSTR applicationName);
     void Show() const;
     void Destroy();
-    void SetTitle(const LPCWSTR title) const;
+    void SetApplicationName(const LPCWSTR name) const;
     void ProcessMessages();
     HWND GetWindowHandle() const { return m_WindowHandle; }
     int GetWidth() const { return m_Width; }
